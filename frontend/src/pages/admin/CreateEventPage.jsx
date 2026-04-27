@@ -34,6 +34,7 @@ export default function CreateEventPage() {
       const data = await api.createEvent(form);
       setEventId(data.event.id);
       setSuccess('Tạo sự kiện thành công! Giờ hãy thêm khu vực ghế.');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Lỗi tạo sự kiện, vui lòng thử lại.');
     }
@@ -62,6 +63,7 @@ export default function CreateEventPage() {
       setNewSection({ name: '', rowsCount: 5, seatsPerRow: 10, price: 500000, colorCode: '#00D4FF' });
       setHiddenSeats(new Set());
       setSuccess(data.message);
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       setError(err.message || 'Lỗi thêm khu vực, vui lòng thử lại.');
     }
