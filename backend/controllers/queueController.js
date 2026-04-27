@@ -20,8 +20,10 @@ const joinQueue = async (req, res) => {
       });
     }
 
-    // Get next position
-    const maxPosition = await QueueEntry.max('position', { where: { eventId } }) || 0;
+    // [FIX 3] Only count 'waiting' entries to avoid inflation from admitted users
+    const maxPosition = await QueueEntry.max('position', {
+      where: { eventId, status: 'waiting' },
+    }) || 0;
 
     const entry = await QueueEntry.create({
       eventId: parseInt(eventId),

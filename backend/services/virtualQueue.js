@@ -1,11 +1,16 @@
 const { Op } = require('sequelize');
-const { QueueEntry } = require('../models');
+const { QueueEntry, Event } = require('../models');
 const crypto = require('crypto');
 
 const BATCH_SIZE = parseInt(process.env.QUEUE_BATCH_SIZE) || 10;
 
 const admitNextBatch = async (eventId, io) => {
   try {
+    // [FIX 4] Check event is still published before admitting
+    const event = await Event.findByPk(eventId);
+    if (!event || event.status !== 'published') {
+      return 0;
+    }
     const waiting = await QueueEntry.findAll({
       where: { eventId, status: 'waiting' },
       order: [['position', 'ASC']],
