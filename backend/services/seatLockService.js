@@ -10,19 +10,39 @@ const lockSeat = async (seatId, userId) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Check how many seats user has locked (max 4)
+    // Find seat to get eventId (for per-event limit)
+    const targetSeat = await Seat.findByPk(seatId, {
+      include: [{ model: require('../models/SeatSection'), as: 'section', attributes: ['eventId'] }],
+      transaction,
+    });
+
+    if (!targetSeat) {
+      await transaction.rollback();
+      return { success: false, message: 'Không tìm thấy ghế' };
+    }
+
+    const eventId = targetSeat.section?.eventId;
+
+    // Check how many seats user has locked FOR THIS EVENT (max 4)
     const lockedCount = await Seat.count({
       where: { lockedBy: userId, status: 'locked' },
+      include: [{
+        model: require('../models/SeatSection'),
+        as: 'section',
+        where: { eventId },
+        attributes: [],
+        required: true,
+      }],
       transaction,
     });
 
     if (lockedCount >= 4) {
       await transaction.rollback();
-      return { success: false, message: 'Bạn chỉ được giữ tối đa 4 ghế' };
+      return { success: false, message: 'Bạn chỉ được giữ tối đa 4 ghế mỗi sự kiện' };
     }
 
     // PostgreSQL row-level locking with SKIP LOCKED
-    const [results] = await sequelize.query(
+    const rows = await sequelize.query(
       `SELECT id FROM seats
        WHERE id = :seatId AND status = 'available'
        FOR UPDATE SKIP LOCKED`,
@@ -33,7 +53,8 @@ const lockSeat = async (seatId, userId) => {
       }
     );
 
-    if (!results) {
+    // rows is an array; if empty → seat is locked/sold by someone else
+    if (!rows || rows.length === 0) {
       await transaction.rollback();
       return { success: false, message: 'Ghế đã được người khác chọn' };
     }
