@@ -11,8 +11,8 @@ const createOrder = async (req, res) => {
     if (!seatIds || seatIds.length === 0) {
       return res.status(400).json({ error: true, message: 'Vui lòng chọn ghế' });
     }
-    if (seatIds.length > 4) {
-      return res.status(400).json({ error: true, message: 'Tối đa 4 ghế mỗi đơn' });
+    if (seatIds.length > 6) {
+      return res.status(400).json({ error: true, message: 'Tối đa 6 ghế mỗi đơn' });
     }
 
     // Verify all seats are locked by this user

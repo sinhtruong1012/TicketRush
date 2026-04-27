@@ -11,5 +11,5 @@ export const SEAT_STATUS = {
   SOLD: 'sold',
 };
 
-export const MAX_SEATS_PER_ORDER = 4;
+export const MAX_SEATS_PER_ORDER = 6;
 export const LOCK_TIMEOUT_MINUTES = 10;

@@ -36,9 +36,9 @@ const lockSeat = async (seatId, userId) => {
       transaction,
     });
 
-    if (lockedCount >= 4) {
+    if (lockedCount >= 6) {
       await transaction.rollback();
-      return { success: false, message: 'Bạn chỉ được giữ tối đa 4 ghế mỗi sự kiện' };
+      return { success: false, message: 'Bạn chỉ được giữ tối đa 6 ghế mỗi sự kiện' };
     }
 
     // PostgreSQL row-level locking with SKIP LOCKED
