@@ -5,10 +5,14 @@ const { QueueEntry } = require('../models');
 const { Op } = require('sequelize');
 
 let ioInstance = null;
+let isReleasingSeats = false; // [FIX 8] In-process lock
+let isAdmittingBatch = false; // [FIX 8] In-process lock
 
 const start = () => {
   // Every 30s: release expired locked seats
   cron.schedule('*/30 * * * * *', async () => {
+    if (isReleasingSeats) return; // [FIX 8] Skip if already running
+    isReleasingSeats = true;
     try {
       const released = await seatLockService.releaseExpiredSeats(ioInstance);
       if (released > 0) {
@@ -16,11 +20,15 @@ const start = () => {
       }
     } catch (error) {
       console.error('Ticket lifecycle error:', error);
+    } finally {
+      isReleasingSeats = false; // [FIX 8] Always release lock
     }
   });
 
   // Every 30s: admit next batch from queue for each active event
   cron.schedule('*/30 * * * * *', async () => {
+    if (isAdmittingBatch) return; // [FIX 8] Skip if already running
+    isAdmittingBatch = true;
     try {
       // Find all events that have users waiting in queue
       const waitingEntries = await QueueEntry.findAll({
@@ -38,6 +46,8 @@ const start = () => {
       }
     } catch (error) {
       console.error('Queue admit batch error:', error);
+    } finally {
+      isAdmittingBatch = false; // [FIX 8] Always release lock
     }
   });
 };

@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
-const { Seat } = require('../models');
-const { QueryTypes } = require('sequelize');
+const { Seat, SeatSection, Event } = require('../models');
+const { QueryTypes, Op } = require('sequelize');
 
 /**
  * Lock a seat using PostgreSQL FOR UPDATE SKIP LOCKED
@@ -10,9 +10,9 @@ const lockSeat = async (seatId, userId) => {
   const transaction = await sequelize.transaction();
 
   try {
-    // Find seat to get eventId (for per-event limit)
+    // Find seat to get eventId (for per-event limit + event validation)
     const targetSeat = await Seat.findByPk(seatId, {
-      include: [{ model: require('../models/SeatSection'), as: 'section', attributes: ['eventId'] }],
+      include: [{ model: SeatSection, as: 'section', attributes: ['eventId', 'price'] }],
       transaction,
     });
 
@@ -23,11 +23,27 @@ const lockSeat = async (seatId, userId) => {
 
     const eventId = targetSeat.section?.eventId;
 
-    // Check how many seats user has locked FOR THIS EVENT (max 4)
+    // [FIX 9] Check event status, saleStartAt, saleEndAt before allowing lock
+    const event = await Event.findByPk(eventId, { transaction });
+    if (!event || event.status !== 'published') {
+      await transaction.rollback();
+      return { success: false, message: 'Sự kiện không khả dụng' };
+    }
+    const now = new Date();
+    if (event.saleStartAt && now < new Date(event.saleStartAt)) {
+      await transaction.rollback();
+      return { success: false, message: 'Chưa đến thời gian mở bán vé' };
+    }
+    if (event.saleEndAt && now > new Date(event.saleEndAt)) {
+      await transaction.rollback();
+      return { success: false, message: 'Đã hết thời gian mua vé' };
+    }
+
+    // Check how many seats user has locked FOR THIS EVENT (max 6)
     const lockedCount = await Seat.count({
       where: { lockedBy: userId, status: 'locked' },
       include: [{
-        model: require('../models/SeatSection'),
+        model: SeatSection,
         as: 'section',
         where: { eventId },
         attributes: [],
@@ -86,24 +102,34 @@ const lockSeat = async (seatId, userId) => {
 /**
  * Unlock a seat (only by the user who locked it)
  */
+// [FIX 7] Wrap in transaction for atomicity between DB update and WebSocket emit
 const unlockSeat = async (seatId, userId) => {
-  const [affectedRows] = await Seat.update(
-    {
-      status: 'available',
-      lockedBy: null,
-      lockedAt: null,
-      version: sequelize.literal('version + 1'),
-    },
-    {
-      where: { id: seatId, lockedBy: userId, status: 'locked' },
+  const transaction = await sequelize.transaction();
+  try {
+    const [affectedRows] = await Seat.update(
+      {
+        status: 'available',
+        lockedBy: null,
+        lockedAt: null,
+        version: sequelize.literal('version + 1'),
+      },
+      {
+        where: { id: seatId, lockedBy: userId, status: 'locked' },
+        transaction,
+      }
+    );
+
+    if (affectedRows === 0) {
+      await transaction.rollback();
+      return { success: false, message: 'Không thể hủy giữ ghế này' };
     }
-  );
 
-  if (affectedRows === 0) {
-    return { success: false, message: 'Không thể hủy giữ ghế này' };
+    await transaction.commit();
+    return { success: true };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
-
-  return { success: true };
 };
 
 /**
