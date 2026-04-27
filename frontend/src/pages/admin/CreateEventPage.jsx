@@ -16,17 +16,22 @@ export default function CreateEventPage() {
   const update = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
   const updateSection = (field) => (e) => setNewSection(prev => ({ ...prev, [field]: e.target.value }));
 
+  const showError = (msg) => {
+    setError(msg);
+    setTimeout(() => setError(''), 3000);
+  };
+
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setError('');
 
     // Validate dates before sending
     if (!form.eventDate) {
-      setError('Vui lòng nhập ngày sự kiện.');
+      showError('Vui lòng nhập ngày sự kiện.');
       return;
     }
     if (form.saleStartAt && new Date(form.saleStartAt) >= new Date(form.eventDate)) {
-      setError('Ngày mở bán vé phải trước ngày diễn ra sự kiện.');
+      showError('Ngày mở bán vé phải trước ngày diễn ra sự kiện.');
       return;
     }
 
@@ -36,7 +41,7 @@ export default function CreateEventPage() {
       setSuccess('Tạo sự kiện thành công! Giờ hãy thêm khu vực ghế.');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.message || 'Lỗi tạo sự kiện, vui lòng thử lại.');
+      showError(err.message || 'Lỗi tạo sự kiện, vui lòng thử lại.');
     }
   };
 
@@ -45,7 +50,7 @@ export default function CreateEventPage() {
     setError('');
 
     if (!newSection.name.trim()) {
-      setError('Vui lòng nhập tên khu vực ghế.');
+      showError('Vui lòng nhập tên khu vực ghế.');
       return;
     }
 
@@ -65,7 +70,7 @@ export default function CreateEventPage() {
       setSuccess(data.message);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.message || 'Lỗi thêm khu vực, vui lòng thử lại.');
+      showError(err.message || 'Lỗi thêm khu vực, vui lòng thử lại.');
     }
   };
 
