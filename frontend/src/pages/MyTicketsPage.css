@@ -1,0 +1,215 @@
+/* ============================================
+   My Tickets Page
+   ============================================ */
+
+.my-tickets { padding-bottom: 4rem; }
+
+.tickets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ---- Controls ---- */
+.ticket-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.ticket-search {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ticket-search svg {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+}
+
+.ticket-search input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.ticket-search input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.ticket-filter-select {
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 0.75rem center / 16px;
+  color: var(--text-primary);
+  appearance: none;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.ticket-filter-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+/* ---- Ticket Card ---- */
+.ticket-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ticket-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Top colored strip */
+.ticket-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-primary));
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin: calc(-1 * var(--card-padding)) calc(-1 * var(--card-padding)) 1rem;
+}
+
+/* ---- Header ---- */
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ticket-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  flex: 1;
+  line-height: 1.4;
+}
+.ticket-badge {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--accent-green);
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---- Body: info + QR ---- */
+.ticket-body {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.ticket-info {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.9;
+}
+.ticket-seat {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.ticket-price {
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-top: 0.25rem;
+}
+
+/* ---- QR Code Block ---- */
+.ticket-qr {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.ticket-qr:hover { transform: scale(1.03); }
+
+.ticket-qr img {
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  display: block;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+.ticket-qr--expanded img {
+  width: 180px;
+  height: 180px;
+}
+
+.qr-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted, var(--text-secondary));
+  opacity: 0.6;
+}
+.qr-placeholder {
+  width: 100px;
+  height: 100px;
+  background: var(--border-color);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* ---- Dashed Divider (physical ticket feel) ---- */
+.ticket-divider {
+  border: none;
+  border-top: 2px dashed var(--border-color);
+  margin: 1rem calc(-1 * var(--card-padding));
+  position: relative;
+}
+.ticket-divider::before,
+.ticket-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: var(--bg-primary, #0f1117);
+  border-radius: 50%;
+  border: 2px dashed var(--border-color);
+}
+.ticket-divider::before { left: -8px; }
+.ticket-divider::after  { right: -8px; }
+
+/* ---- Footer ---- */
+.ticket-footer {
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  text-align: right;
+}

@@ -1,0 +1,59 @@
+.waiting-room {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(0, 212, 255, 0.08) 0%, transparent 60%);
+}
+.waiting-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  padding: 3rem;
+}
+.waiting-animation {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: 50%;
+  animation: pulseRing 2s ease-out infinite;
+}
+.delay-1 { animation-delay: 0.5s; }
+.delay-2 { animation-delay: 1s; }
+@keyframes pulseRing {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.waiting-icon { font-size: 2.5rem; z-index: 1; }
+.waiting-card h1 { font-size: 1.8rem; margin-bottom: 0.75rem; }
+.waiting-message { color: var(--text-secondary); margin-bottom: 2rem; }
+.queue-info { margin-bottom: 2rem; }
+.queue-position { margin-bottom: 0.5rem; }
+.position-number {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--accent-primary);
+}
+.position-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.queue-estimate { color: var(--text-secondary); font-size: 0.9rem; }
+.waiting-warning {
+  color: var(--accent-secondary);
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}

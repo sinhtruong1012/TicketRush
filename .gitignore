@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables (QUAN TRONG - khong duoc push len GitHub)
+.env
+.env.local
+.env.production
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Agent/AI tool
+.agent/
+docs/
+
+# Upload files (nếu có)
+backend/public/uploads/

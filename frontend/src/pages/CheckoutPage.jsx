@@ -1,0 +1,95 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../api/client';
+import { useCountdown } from '../hooks/useCountdown';
+import { formatCurrency } from '../utils/formatCurrency';
+import './CheckoutPage.css';
+
+export default function CheckoutPage() {
+  const { orderId } = useParams();
+  const navigate = useNavigate();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api.getOrder(orderId).then(data => setOrder(data.order)).catch(console.error).finally(() => setLoading(false));
+  }, [orderId]);
+
+  const countdown = useCountdown(order?.expiresAt);
+
+  useEffect(() => {
+    if (countdown.expired && order?.status === 'pending') {
+      setError('Đơn hàng đã hết hạn! Ghế đã được nhả lại.');
+    }
+  }, [countdown.expired, order?.status]);
+
+  const handleConfirm = async () => {
+    setConfirming(true);
+    setError('');
+    try {
+      const data = await api.confirmOrder(orderId);
+      setOrder(data.order);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
+  if (!order) return <div className="empty-state">Đơn hàng không tồn tại</div>;
+
+  return (
+    <div className="checkout container">
+      <div className="checkout-card card">
+        {order.status === 'paid' ? (
+          <div className="checkout-success">
+            <div className="success-icon">✅</div>
+            <h1>Thanh toán thành công!</h1>
+            <p>Vé của bạn đã được xác nhận</p>
+            {order.qrCodeData && <img src={order.qrCodeData} alt="QR Code" className="qr-image" />}
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/my-tickets')}>Xem vé của tôi</button>
+          </div>
+        ) : (
+          <>
+            <h1 className="checkout-title">Thanh toán</h1>
+
+            {!countdown.expired && (
+              <div className="countdown">
+                <span className="countdown-label">Thời gian còn lại:</span>
+                <span className="countdown-timer">
+                  {String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
+                </span>
+              </div>
+            )}
+
+            {error && <div className="auth-error">{error}</div>}
+
+            <div className="order-summary">
+              <h3>Chi tiết đơn hàng</h3>
+              <div className="order-event">📍 {order.event?.title}</div>
+              <ul className="order-items">
+                {order.items?.map(item => (
+                  <li key={item.id} className="order-item">
+                    <span>{item.seat?.section?.name} — {item.seat?.rowLabel}{item.seat?.seatNumber}</span>
+                    <span>{formatCurrency(item.priceAtPurchase)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="order-total">
+                <span>Tổng cộng:</span>
+                <span className="total-amount">{formatCurrency(order.totalAmount)}</span>
+              </div>
+            </div>
+
+            <button className="btn btn-gold btn-lg" style={{ width: '100%' }} onClick={handleConfirm} disabled={confirming || countdown.expired}>
+              {confirming ? 'Đang xử lý...' : countdown.expired ? 'Đã hết hạn' : '✅ XÁC NHẬN THANH TOÁN'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
