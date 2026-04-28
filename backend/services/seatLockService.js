@@ -1,6 +1,7 @@
 const sequelize = require('../config/database');
 const { Seat, SeatSection, Event } = require('../models');
 const { QueryTypes, Op } = require('sequelize');
+const { MAX_SEATS_PER_ORDER, SEAT_LOCK_TIMEOUT_MINUTES } = require('../config/constants');
 
 /**
  * Lock a seat using PostgreSQL FOR UPDATE SKIP LOCKED
@@ -52,9 +53,9 @@ const lockSeat = async (seatId, userId) => {
       transaction,
     });
 
-    if (lockedCount >= 6) {
+    if (lockedCount >= MAX_SEATS_PER_ORDER) {
       await transaction.rollback();
-      return { success: false, message: 'Bạn chỉ được giữ tối đa 6 ghế mỗi sự kiện' };
+      return { success: false, message: `Bạn chỉ được giữ tối đa ${MAX_SEATS_PER_ORDER} ghế mỗi sự kiện` };
     }
 
     // PostgreSQL row-level locking with SKIP LOCKED
@@ -136,7 +137,7 @@ const unlockSeat = async (seatId, userId) => {
  * Release expired locked seats (called by cron job)
  */
 const releaseExpiredSeats = async (io) => {
-  const timeoutMinutes = parseInt(process.env.SEAT_LOCK_TIMEOUT_MINUTES) || 10;
+  const timeoutMinutes = SEAT_LOCK_TIMEOUT_MINUTES;
   const cutoff = new Date(Date.now() - timeoutMinutes * 60 * 1000);
 
   const expiredSeats = await Seat.findAll({

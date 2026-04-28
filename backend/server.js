@@ -35,6 +35,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// [FIX 26/27] Expose business constants to frontend — single source of truth
+const { MAX_SEATS_PER_ORDER, SEAT_LOCK_TIMEOUT_MINUTES } = require('./config/constants');
+app.get('/api/config', (req, res) => {
+  res.json({ MAX_SEATS_PER_ORDER, SEAT_LOCK_TIMEOUT_MINUTES });
+});
+
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');

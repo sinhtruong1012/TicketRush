@@ -1,6 +1,7 @@
 const QRCode = require('qrcode');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
+const { MAX_SEATS_PER_ORDER, SEAT_LOCK_TIMEOUT_MS } = require('../config/constants');
 const { Order, OrderItem, Seat, SeatSection, Event } = require('../models');
 
 const createOrder = async (req, res) => {
@@ -11,8 +12,8 @@ const createOrder = async (req, res) => {
     if (!seatIds || seatIds.length === 0) {
       return res.status(400).json({ error: true, message: 'Vui lòng chọn ghế' });
     }
-    if (seatIds.length > 6) {
-      return res.status(400).json({ error: true, message: 'Tối đa 6 ghế mỗi đơn' });
+    if (seatIds.length > MAX_SEATS_PER_ORDER) {
+      return res.status(400).json({ error: true, message: `Tối đa ${MAX_SEATS_PER_ORDER} ghế mỗi đơn` });
     }
 
     // [FIX 13] Check event status & date before creating order
@@ -60,7 +61,7 @@ const createOrder = async (req, res) => {
 
     // [FIX 10] Snapshot price at order creation time via priceAtPurchase in OrderItem
     const totalAmount = seats.reduce((sum, seat) => sum + parseFloat(seat.section.price), 0);
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + SEAT_LOCK_TIMEOUT_MS);
 
     const order = await Order.create({
       userId,

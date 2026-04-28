@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { useSocket } from '../hooks/useSocket';
+import { useConfig } from '../hooks/useConfig';
 import { formatCurrency } from '../utils/formatCurrency';
-import { MAX_SEATS_PER_ORDER } from '../utils/constants';
 import { AuthContext } from '../context/AuthContext';
 import './SeatSelectionPage.css';
 
@@ -12,6 +12,8 @@ export default function SeatSelectionPage() {
   const navigate = useNavigate();
   const socket = useSocket();
   const { user } = useContext(AuthContext);
+  const config = useConfig();
+  const MAX_SEATS = config.MAX_SEATS_PER_ORDER;
   const [sections, setSections] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,8 +101,8 @@ export default function SeatSelectionPage() {
       return;
     }
 
-    if (selectedSeats.length >= MAX_SEATS_PER_ORDER) {
-      setError(`Tối đa ${MAX_SEATS_PER_ORDER} ghế mỗi đơn`);
+    if (selectedSeats.length >= MAX_SEATS) {
+      setError(`Tối đa ${MAX_SEATS} ghế mỗi đơn`);
       setTimeout(() => setError(''), 3000);
       return;
     }
@@ -236,7 +238,7 @@ export default function SeatSelectionPage() {
             </div>
 
             <button className="btn sidebar-btn-checkout" onClick={handleCheckout} disabled={selectedSeats.length === 0}>
-              Tiếp tục thanh toán {selectedSeats.length > 0 && `(${selectedSeats.length}/${MAX_SEATS_PER_ORDER})`}
+              Tiếp tục thanh toán {selectedSeats.length > 0 && `(${selectedSeats.length}/${MAX_SEATS})`}
             </button>
           </div>
         </div>

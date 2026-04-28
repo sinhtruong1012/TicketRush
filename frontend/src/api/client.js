@@ -40,6 +40,9 @@ export const api = {
   getMe: () => apiClient('/auth/me'),
   updateProfile: (body) => apiClient('/auth/profile', { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body) }),
 
+  // Config — [FIX 26/27] read business constants from backend
+  getConfig: () => apiClient('/config'),
+
   // Events
   getEvents: (params = '') => apiClient(`/events?${params}`),
   getEvent: (id) => apiClient(`/events/${id}`),
