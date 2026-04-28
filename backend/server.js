@@ -1,4 +1,31 @@
 require('dotenv').config();
+
+// [FIX 1.4] Fail-fast: crash immediately if critical env vars are missing.
+// jwt.sign/verify with secret=undefined accepts ANY token → catastrophic security hole.
+const REQUIRED_ENV = [
+  'JWT_SECRET',
+  'JWT_EXPIRES_IN',
+  'DB_NAME',
+  'DB_USER',
+  'DB_PASSWORD',
+  'DB_HOST',
+];
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.error('❌ FATAL: Missing required environment variables:');
+  missingEnv.forEach(key => console.error(`   - ${key}`));
+  console.error('👉 Copy .env.example → .env and fill in all values.');
+  process.exit(1);
+}
+
+// Extra guard: JWT_SECRET must be strong enough (min 32 chars)
+if (process.env.JWT_SECRET.length < 32) {
+  console.error('❌ FATAL: JWT_SECRET is too short (minimum 32 characters required).');
+  console.error('   Use a cryptographically random string, e.g.:');
+  console.error('   node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+  process.exit(1);
+}
+
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
