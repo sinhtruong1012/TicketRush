@@ -2,6 +2,29 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
+/**
+ * [FIX 1.1] In-memory token blacklist.
+ * Maps jti (or full token) -> expiry timestamp.
+ * Auto-purged on each logout to prevent unbounded growth.
+ */
+const tokenBlacklist = new Set();
+const blacklistExpiry = new Map(); // token -> exp timestamp (ms)
+
+const addToBlacklist = (token, exp) => {
+  tokenBlacklist.add(token);
+  blacklistExpiry.set(token, exp * 1000); // exp is Unix seconds
+  // Purge expired tokens from blacklist
+  const now = Date.now();
+  for (const [t, expMs] of blacklistExpiry.entries()) {
+    if (expMs < now) {
+      tokenBlacklist.delete(t);
+      blacklistExpiry.delete(t);
+    }
+  }
+};
+
+const isBlacklisted = (token) => tokenBlacklist.has(token);
+
 const register = async (req, res) => {
   try {
     const { email, password, fullName, phone, gender, birthDate } = req.body;
@@ -113,4 +136,21 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile };
+const logout = (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.decode(token); // decode without verify (already verified by auth middleware)
+      if (decoded && decoded.exp) {
+        addToBlacklist(token, decoded.exp);
+      }
+    }
+    res.json({ message: 'Đăng xuất thành công' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: true, message: 'Lỗi server' });
+  }
+};
+
+module.exports = { register, login, getMe, updateProfile, logout, isBlacklisted };

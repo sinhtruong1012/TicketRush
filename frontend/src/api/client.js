@@ -38,6 +38,7 @@ export const api = {
   register: (body) => apiClient('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
   login: (body) => apiClient('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   getMe: () => apiClient('/auth/me'),
+  logout: () => apiClient('/auth/logout', { method: 'POST' }),
   updateProfile: (body) => apiClient('/auth/profile', { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body) }),
 
   // Config — [FIX 26/27] read business constants from backend

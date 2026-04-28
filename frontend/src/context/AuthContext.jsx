@@ -55,10 +55,16 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const logout = () => {
-    storage.removeItem(STORAGE_KEY);
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.logout(); // [FIX 1.1] Blacklist token server-side
+    } catch {
+      // Proceed with local logout even if server call fails
+    } finally {
+      storage.removeItem(STORAGE_KEY);
+      setToken(null);
+      setUser(null);
+    }
   };
 
   const updateUser = (newUser) => {

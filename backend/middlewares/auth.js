@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { isBlacklisted } = require('../controllers/authController');
 
 const auth = (req, res, next) => {
   try {
@@ -8,6 +9,12 @@ const auth = (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
+
+    // [FIX 1.1] Reject blacklisted (logged-out) tokens
+    if (isBlacklisted(token)) {
+      return res.status(401).json({ error: true, message: 'Token đã bị thu hồi. Vui lòng đăng nhập lại.' });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();

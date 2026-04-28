@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { register, login, getMe, updateProfile } = require('../controllers/authController');
+const { register, login, getMe, updateProfile, logout } = require('../controllers/authController');
 const { auth } = require('../middlewares/auth');
 const { validate, registerRules, loginRules } = require('../middlewares/validator');
 const multer = require('multer');
@@ -36,5 +36,6 @@ router.post('/register', registerRules, validate, register);
 router.post('/login', loginRules, validate, login);
 router.get('/me', auth, getMe);
 router.put('/profile', auth, upload.single('avatarFile'), updateProfile);
+router.post('/logout', auth, logout); // [FIX 1.1] Server-side token invalidation
 
 module.exports = router;
