@@ -56,6 +56,7 @@ export const api = {
   // Orders
   createOrder: (body) => apiClient('/orders/create', { method: 'POST', body: JSON.stringify(body) }),
   confirmOrder: (id) => apiClient(`/orders/${id}/confirm`, { method: 'POST' }),
+  cancelOrder: (id) => apiClient(`/orders/${id}/cancel`, { method: 'POST' }),
   getMyTickets: () => apiClient('/orders/my-tickets'),
   getOrder: (id) => apiClient(`/orders/${id}`),
 

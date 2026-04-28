@@ -10,7 +10,7 @@
 
   --accent-primary: #e53e3e;
   --accent-secondary: #c53030;
-  --accent-gold: #d97706;
+  --accent-gold: #e53e3e;
   --accent-green: #16a34a;
 
   --text-primary: #111111;
@@ -23,7 +23,7 @@
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #e53e3e, #c53030);
   --gradient-accent: linear-gradient(135deg, #e53e3e, #d97706);
-  --gradient-gold: linear-gradient(135deg, #d97706, #b45309);
+  --gradient-gold: linear-gradient(135deg, #e53e3e, #c53030);
   --gradient-danger: linear-gradient(135deg, #e53e3e, #c53030);
 
   /* Typography */
@@ -152,7 +152,7 @@ a {
 
 .btn-gold {
   background: var(--gradient-gold);
-  color: #0a0a0f;
+  color: #fff;
 }
 
 .btn-lg {

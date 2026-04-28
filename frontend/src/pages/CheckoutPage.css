@@ -5,15 +5,18 @@
   justify-content: center;
   padding: 2rem;
 }
+
 .checkout-card {
   max-width: 520px;
   width: 100%;
   padding: 2.5rem;
 }
+
 .checkout-title {
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
 }
+
 .countdown {
   display: flex;
   align-items: center;
@@ -25,21 +28,36 @@
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
-.countdown-label { color: var(--text-secondary); }
+
+.countdown-label {
+  color: var(--text-secondary);
+}
+
 .countdown-timer {
   font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 800;
   color: #FF6B6B;
 }
-.order-summary { margin-bottom: 2rem; }
-.order-summary h3 { margin-bottom: 0.75rem; }
+
+.order-summary {
+  margin-bottom: 2rem;
+}
+
+.order-summary h3 {
+  margin-bottom: 0.75rem;
+}
+
 .order-event {
   color: var(--text-secondary);
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
-.order-items { list-style: none; }
+
+.order-items {
+  list-style: none;
+}
+
 .order-item {
   display: flex;
   justify-content: space-between;
@@ -47,6 +65,7 @@
   border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
 }
+
 .order-total {
   display: flex;
   justify-content: space-between;
@@ -54,15 +73,32 @@
   font-size: 1.1rem;
   padding-top: 1rem;
 }
-.total-amount { color: var(--accent-gold); font-size: 1.3rem; }
+
+.total-amount {
+  color: var(--accent-gold);
+  font-size: 1.3rem;
+}
 
 .checkout-success {
   text-align: center;
   padding: 2rem 0;
 }
-.success-icon { font-size: 4rem; margin-bottom: 1rem; }
-.checkout-success h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
-.checkout-success p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.checkout-success h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.checkout-success p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
 .qr-image {
   width: 200px;
   height: 200px;
@@ -70,4 +106,136 @@
   background: #fff;
   padding: 0.5rem;
   margin-bottom: 1.5rem;
+}
+
+/* ── Cancel Confirmation Modal ─────────────────────────────────── */
+.cancel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.cancel-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem 2rem 1.5rem;
+  width: 90%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.cancel-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.5rem;
+}
+
+.cancel-modal-desc {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.cancel-modal-list {
+  list-style: disc;
+  text-align: left;
+  padding-left: 1.4rem;
+  color: #444;
+  font-size: 0.9rem;
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+
+.cancel-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cancel-modal-btn {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.cancel-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel-modal-btn:not(:disabled):hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.cancel-modal-btn--cancel {
+  background: transparent;
+  color: #E53E3E;
+  border: 2px solid #E53E3E;
+}
+
+.cancel-modal-btn--stay {
+  background: #E53E3E;
+  color: #fff;
+}
+
+/* ── Expired Modal ─────────────────────────────────────────────── */
+.expired-modal-icon {
+  font-size: 2.5rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.expired-modal-btn {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 50px;
+  background: #E53E3E;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.expired-modal-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
