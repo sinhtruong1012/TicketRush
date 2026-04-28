@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { register, login, getMe, updateProfile, logout } = require('../controllers/authController');
 const { auth } = require('../middlewares/auth');
 const { validate, registerRules, loginRules } = require('../middlewares/validator');
+const { loginLimiter, registerLimiter } = require('../middlewares/rateLimiter'); // [FIX 1.3]
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -32,10 +33,11 @@ const upload = multer({
   }
 });
 
-router.post('/register', registerRules, validate, register);
-router.post('/login', loginRules, validate, login);
+router.post('/register', registerLimiter, registerRules, validate, register); // [FIX 1.3]
+router.post('/login', loginLimiter, loginRules, validate, login);             // [FIX 1.3]
 router.get('/me', auth, getMe);
 router.put('/profile', auth, upload.single('avatarFile'), updateProfile);
-router.post('/logout', auth, logout); // [FIX 1.1] Server-side token invalidation
+router.post('/logout', auth, logout);
 
 module.exports = router;
+

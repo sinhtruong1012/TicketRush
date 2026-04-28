@@ -49,7 +49,12 @@ export default function AuthModal() {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (regForm.password.length < 6) { setError('Mật khẩu tối thiểu 6 ký tự'); return; }
+    const pw = regForm.password;
+    if (pw.length < 8) { setError('Mật khẩu tối thiểu 8 ký tự'); return; }
+    if (!/[A-Z]/.test(pw)) { setError('Mật khẩu phải có ít nhất 1 chữ hoa'); return; }
+    if (!/[a-z]/.test(pw)) { setError('Mật khẩu phải có ít nhất 1 chữ thường'); return; }
+    if (!/[0-9]/.test(pw)) { setError('Mật khẩu phải có ít nhất 1 chữ số'); return; }
+    if (!/[^A-Za-z0-9]/.test(pw)) { setError('Mật khẩu phải có ít nhất 1 ký tự đặc biệt (!@#$%...)'); return; }
     if (!regForm.gender) { setError('Vui lòng chọn giới tính của bạn'); return; }
     if (!regForm.birthDate) { setError('Vui lòng chọn ngày sinh của bạn'); return; }
     setLoading(true);
@@ -113,7 +118,7 @@ export default function AuthModal() {
               </div>
               <div className="form-group">
                 <label className="form-label">Mật khẩu *</label>
-                <input type="password" className="form-input" value={regForm.password} onChange={updateReg('password')} placeholder="Tối thiểu 6 ký tự" required />
+                <input type="password" className="form-input" value={regForm.password} onChange={updateReg('password')} placeholder="≥ 8 ký tự, chữ hoa, số, ký tự đặc biệt" required />
               </div>
               <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">

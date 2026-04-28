@@ -10,7 +10,12 @@ const validate = (req, res, next) => {
 
 const registerRules = [
   body('email').isEmail().withMessage('Email không hợp lệ'),
-  body('password').isLength({ min: 6 }).withMessage('Mật khẩu tối thiểu 6 ký tự'),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Mật khẩu tối thiểu 8 ký tự')
+    .matches(/[A-Z]/).withMessage('Mật khẩu phải có ít nhất 1 chữ hoa')
+    .matches(/[a-z]/).withMessage('Mật khẩu phải có ít nhất 1 chữ thường')
+    .matches(/[0-9]/).withMessage('Mật khẩu phải có ít nhất 1 chữ số')
+    .matches(/[^A-Za-z0-9]/).withMessage('Mật khẩu phải có ít nhất 1 ký tự đặc biệt (!@#$%...)'),
   body('fullName').notEmpty().withMessage('Họ tên không được để trống'),
 ];
 

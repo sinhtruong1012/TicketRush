@@ -30,6 +30,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
+// [FIX 1.3] Global rate limiter — safety net for all API routes
+const { apiLimiter } = require('./middlewares/rateLimiter');
+app.use('/api', apiLimiter);
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
