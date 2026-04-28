@@ -201,7 +201,7 @@ export default function SeatSelectionPage() {
         </div>
 
         <div className="seat-sidebar">
-          <div className="sidebar-card card">
+          <div className="sidebar-card card anim-entrance anim-delay-2">
             {eventInfo && (
               <div className="sidebar-event-info">
                 {eventInfo.posterUrl && <img src={eventInfo.posterUrl} alt="Poster" className="sidebar-poster" />}

@@ -83,7 +83,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="checkout container">
-      <div className="checkout-card card">
+      <div className="checkout-card card anim-scale-in">
         {order.status === 'paid' ? (
           <div className="checkout-success">
             <div className="success-icon"></div>

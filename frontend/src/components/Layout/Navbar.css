@@ -50,6 +50,36 @@
   gap: 0.25rem;
 }
 
+/* Dark mode toggle button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #f0ece8;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, color 0.2s;
+  margin: 0 0.25rem;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
+  transform: rotate(15deg) scale(1.05);
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+
+.theme-toggle svg {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .nav-link {
   color: #f7f8f9;
   text-decoration: none;

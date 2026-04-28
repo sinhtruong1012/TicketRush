@@ -42,8 +42,48 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
   --shadow-glow: 0 0 0 3px rgba(229, 62, 62, 0.15);
-  /* card padding token */
   --card-padding: 1.5rem;
+
+  /* Skeleton */
+  --skeleton-base: #e5e7eb;
+  --skeleton-shimmer: #f3f4f6;
+
+  /* Transition */
+  --transition-theme: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===== DARK MODE — Warm Dark (Option B) ===== */
+[data-theme="dark"] {
+  --bg-primary: #1c1917;
+  --bg-secondary: #292524;
+  --bg-card: #2c2925;
+  --bg-card-hover: #333029;
+  --bg-input: #292524;
+
+  --accent-primary: #f05252;
+  --accent-secondary: #e53e3e;
+  --accent-gold: #f05252;
+  --accent-green: #4ade80;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a8a29e;
+  --text-muted: #78716c;
+
+  --border-color: #44403c;
+  --border-hover: #f05252;
+
+  --gradient-primary: linear-gradient(135deg, #f05252, #e53e3e);
+  --gradient-accent: linear-gradient(135deg, #f05252, #f59e0b);
+  --gradient-gold: linear-gradient(135deg, #f05252, #e53e3e);
+  --gradient-danger: linear-gradient(135deg, #f05252, #e53e3e);
+
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 0 3px rgba(240, 82, 82, 0.2);
+
+  --skeleton-base: #3a3530;
+  --skeleton-shimmer: #4a4540;
 }
 
 /* Reset & Base */
@@ -129,8 +169,13 @@ a {
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(229, 62, 62, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.25);
 }
 
 .btn-secondary {
@@ -183,7 +228,11 @@ a {
 .card:hover {
   border-color: rgba(229, 62, 62, 0.2);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.card:active {
+  transform: translateY(-1px);
 }
 
 /* Forms */
@@ -288,9 +337,124 @@ a {
   animation: spin 0.8s linear infinite;
 }
 
+/* ===== KEYFRAMES ===== */
+
+/* Skeleton shimmer — slide from left */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Entrance animations */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ===== ANIMATION UTILITIES ===== */
+.anim-entrance {
+  animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.anim-delay-2 {
+  animation-delay: 0.16s;
+}
+
+.anim-delay-3 {
+  animation-delay: 0.24s;
+}
+
+.anim-delay-4 {
+  animation-delay: 0.32s;
+}
+
+.anim-delay-5 {
+  animation-delay: 0.40s;
+}
+
+.anim-scale-in {
+  animation: scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { useAuth } from './hooks/useAuth';
+import { useTheme } from './hooks/useTheme';
 import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
 import BackToTop from './components/Layout/BackToTop';
@@ -41,11 +42,12 @@ function AdminRedirect({ children }) {
 }
 
 function App() {
+  const { theme } = useTheme();
   return (
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
-          <div className="app">
+          <div className="app" data-theme={theme}>
             <AuthModal />
             <Navbar />
             <main className="main-content">

@@ -4,6 +4,7 @@ import api from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
+import { SkeletonEventDetail } from '../components/Skeleton/Skeleton';
 import './EventDetailPage.css';
 
 const CATEGORY_LABEL = {
@@ -30,7 +31,7 @@ export default function EventDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
+  if (loading) return <div className="container"><SkeletonEventDetail /></div>;
   if (!event) return <div className="empty-state">Sự kiện không tồn tại</div>;
 
   const minPrice = event.sections?.length > 0
@@ -50,7 +51,7 @@ export default function EventDetailPage() {
       <section className="ed-hero">
         <div className="container ed-hero-inner">
           {/* Left: info */}
-          <div className="ed-hero-info">
+          <div className="ed-hero-info anim-entrance">
             <span className="ed-category">{CATEGORY_LABEL[event.category] ?? event.category}</span>
             <h1 className="ed-title">{event.title}</h1>
 
@@ -87,7 +88,7 @@ export default function EventDetailPage() {
           </div>
 
           {/* Right: poster */}
-          <div className="ed-hero-poster">
+          <div className="ed-hero-poster anim-entrance anim-delay-1">
             {hasPoster ? (
               <img src={event.posterUrl} alt={event.title} className="ed-poster-img" />
             ) : (
@@ -107,7 +108,7 @@ export default function EventDetailPage() {
 
         {/* Giới thiệu */}
         {event.description && (
-          <div className="ed-section-card">
+          <div className="ed-section-card anim-entrance anim-delay-2">
             <button
               className="ed-accordion-header"
               onClick={() => setDescExpanded(v => !v)}
@@ -128,7 +129,7 @@ export default function EventDetailPage() {
         )}
 
         {/* Lịch diễn & Thông tin vé */}
-        <div className="ed-section-card">
+        <div className="ed-section-card anim-entrance anim-delay-3">
           <button
             className="ed-accordion-header"
             onClick={() => setTicketExpanded(v => !v)}
@@ -171,7 +172,7 @@ export default function EventDetailPage() {
 
         {/* Khu vực ghế */}
         {event.sections?.length > 0 && (
-          <div className="ed-section-card">
+          <div className="ed-section-card anim-entrance anim-delay-4">
             <h2 className="ed-section-title">Khu vực ghế</h2>
             <div className="ed-seats-grid">
               {event.sections.map(section => {

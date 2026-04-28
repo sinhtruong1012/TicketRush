@@ -16,7 +16,7 @@
 
 /* ── HERO ── */
 .lp-hero {
-  background: #f8f8f6;
+  background: var(--bg-secondary);
   padding: 5rem 0 4rem;
 }
 
@@ -44,7 +44,7 @@
   font-size: clamp(2.4rem, 5vw, 3.8rem);
   font-weight: 800;
   line-height: 1.12;
-  color: #111;
+  color: var(--text-primary);
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
 }
@@ -98,7 +98,7 @@
   justify-content: center;
   padding: 0.85rem 2rem;
   background: transparent;
-  color: #111;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.95rem;
   border-radius: 6px;
@@ -108,8 +108,8 @@
 }
 
 .lp-btn-outline:hover {
-  border-color: #111;
-  color: #111;
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 /* Right — slideshow */
@@ -212,7 +212,7 @@
   font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .lp-tab:hover:not(.active) {
-  color: #111;
+  color: var(--text-primary);
 }
 
 /* Controls */
@@ -269,7 +269,7 @@
 }
 
 .lp-carousel-more:hover {
-  color: #111;
+  color: var(--text-primary);
 }
 
 /* Track Body & Nav Buttons */
@@ -337,7 +337,7 @@
   flex-shrink: 0;
   scroll-snap-align: start;
   text-decoration: none;
-  color: #111;
+  color: var(--text-primary);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -362,7 +362,7 @@
   border-radius: 8px;
   overflow: hidden;
   position: relative;
-  background: #f3f4f6;
+  background: var(--bg-card);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -396,7 +396,7 @@
   font-weight: 600;
   line-height: 1.4;
   margin-bottom: 0.5rem;
-  color: #111;
+  color: var(--text-primary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;

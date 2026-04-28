@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
+import { SkeletonTicketRow } from '../components/Skeleton/Skeleton';
 import './MyTicketsPage.css';
 
 export default function MyTicketsPage() {
@@ -20,7 +21,20 @@ export default function MyTicketsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
+  if (loading) {
+    return (
+      <div className="my-tickets container">
+        <div className="page-header">
+          <h1 className="page-title">Vé của tôi</h1>
+        </div>
+        <div className="tickets-grid">
+          <SkeletonTicketRow />
+          <SkeletonTicketRow />
+          <SkeletonTicketRow />
+        </div>
+      </div>
+    );
+  }
 
   // Flatten orders → individual seat tickets
   const tickets = orders.flatMap(order =>
@@ -87,8 +101,10 @@ export default function MyTicketsPage() {
         <div className="empty-state">Không tìm thấy vé nào phù hợp với điều kiện lọc</div>
       ) : (
         <div className="tickets-grid">
-          {filteredTickets.map(ticket => (
-            <div key={ticket.itemId} className="ticket-card card">
+          {filteredTickets.map((ticket, idx) => {
+            const delayClass = idx < 5 ? `anim-delay-${idx + 1}` : '';
+            return (
+              <div key={ticket.itemId} className={`ticket-card card anim-entrance ${delayClass}`}>
               {/* Header strip */}
               <div className="ticket-header">
                 <h3>{ticket.event?.title}</h3>
@@ -126,7 +142,8 @@ export default function MyTicketsPage() {
                 <span>Mã đơn #{ticket.orderId}</span>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../api/client';
-import { useAuth } from '../hooks/useAuth';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
+import { SkeletonEventCard } from '../components/Skeleton/Skeleton';
 import './LandingPage.css';
 
 const HERO_IMAGES = [
@@ -103,7 +103,7 @@ const EventCard = ({ event, index, isPortrait, isTrending }) => {
   const dateStr = formatDate(event.eventDate).split(',')[1] || formatDate(event.eventDate);
 
   return (
-    <Link to={`/events/${event.id}`} className={cardClasses}>
+    <Link to={`/events/${event.id}`} className={cardClasses} style={{ animationDelay: `${index * 0.1}s` }}>
       {isTrending && <div className="lp-c-number">{index + 1}</div>}
       <div className="lp-c-img-wrap">
         {event.posterUrl ? (
@@ -126,11 +126,11 @@ const EventCard = ({ event, index, isPortrait, isTrending }) => {
   );
 };
 
-const EventCarousel = ({ title, events, isPortrait = false, isTrending = false, tabs = null, activeTab = null, onTabChange = null, hideMoreLink = false }) => {
+const EventCarousel = ({ title, events, loading = false, isPortrait = false, isTrending = false, tabs = null, activeTab = null, onTabChange = null, hideMoreLink = false }) => {
   const scrollRef = useRef(null);
   const scroll = (offset) => scrollRef.current?.scrollBy({ left: offset, behavior: 'smooth' });
 
-  if (!events?.length) return null;
+  if (!loading && !events?.length) return null;
 
   return (
     <section className="lp-carousel-section">
@@ -151,9 +151,17 @@ const EventCarousel = ({ title, events, isPortrait = false, isTrending = false, 
         <div className="lp-carousel-body">
           <button className="lp-btn-nav left" onClick={() => scroll(-400)}>&lt;</button>
           <div className="lp-carousel-track" ref={scrollRef}>
-            {events.map((event, index) => (
-              <EventCard key={`${event.id}-${index}`} event={event} index={index} isPortrait={isPortrait} isTrending={isTrending} />
-            ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={`lp-c-card ${isPortrait ? 'portrait' : 'landscape'}`}>
+                  <SkeletonEventCard />
+                </div>
+              ))
+            ) : (
+              events.map((event, index) => (
+                <EventCard key={`${event.id}-${index}`} event={event} index={index} isPortrait={isPortrait} isTrending={isTrending} />
+              ))
+            )}
           </div>
           <button className="lp-btn-nav right" onClick={() => scroll(400)}>&gt;</button>
         </div>
@@ -164,13 +172,14 @@ const EventCarousel = ({ title, events, isPortrait = false, isTrending = false, 
 
 export default function LandingPage() {
   const [allEvents, setAllEvents] = useState([]);
-  const { openAuthModal } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Lấy tối đa 50 sự kiện để làm data pool cho trang chủ
     api.getEvents('limit=50&status=published').then(data => {
       setAllEvents(data.events || []);
-    }).catch(() => { });
+    }).catch(() => { })
+      .finally(() => setLoading(false));
   }, []);
 
   const categorySections = [
@@ -187,19 +196,16 @@ export default function LandingPage() {
       <section className="lp-hero">
         <div className="lp-hero-inner container">
           <div className="lp-hero-text">
-            <p className="lp-eyebrow">Nhiều điều thú vị đang chờ đón bạn</p>
-            <h1 className="lp-hero-title">Chào mừng đến với <strong style={{ color: '#e53e3e' }}>TicketRush</strong></h1>
-            <p className="lp-hero-desc">
+            <p className="lp-eyebrow anim-entrance">Nhiều điều thú vị đang chờ đón bạn</p>
+            <h1 className="lp-hero-title anim-entrance anim-delay-1">Chào mừng đến với <strong style={{ color: '#e53e3e' }}>TicketRush</strong></h1>
+            <p className="lp-hero-desc anim-entrance anim-delay-2">
               TicketRush là nền tảng bán vé trực tuyến hàng đầu Việt Nam. Với sức mạnh công nghệ, kinh nghiệm và sự thấu hiểu thị trường cùng một hệ sinh thái người dùng rộng lớn, TicketRush là lựa chọn hoàn hảo cho khách hàng và bất kì nhà tổ chức sự kiện nào.
             </p>
-            <div className="lp-hero-actions">
-              <button onClick={() => openAuthModal('register')} className="lp-btn-red">
-                Đăng ký ngay!
-              </button>
+            <div className="lp-hero-actions anim-entrance anim-delay-3">
               <Link to="/events" className="lp-btn-outline">Khám phá sự kiện</Link>
             </div>
           </div>
-          <div className="lp-hero-visual">
+          <div className="lp-hero-visual anim-entrance anim-delay-2">
             <div className="lp-hero-img-wrap">
               <HeroSlideshow />
             </div>
@@ -208,14 +214,15 @@ export default function LandingPage() {
       </section>
 
       <div className="lp-carousels-wrapper">
-        <EventCarousel title="Sự kiện đặc biệt" events={allEvents.slice(0, 8)} isPortrait hideMoreLink />
-        <EventCarousel title="🔥 Sự kiện xu hướng" events={shuffleArray(allEvents).slice(0, 10)} isTrending hideMoreLink />
+        <EventCarousel title="Sự kiện đặc biệt" events={allEvents.slice(0, 8)} loading={loading} isPortrait hideMoreLink />
+        <EventCarousel title="🔥 Sự kiện xu hướng" events={shuffleArray(allEvents).slice(0, 10)} loading={loading} isTrending hideMoreLink />
 
         {categorySections.map(({ title, category }) => (
           <EventCarousel
             key={category}
             title={title}
             events={allEvents.filter(e => e.category === category).slice(0, 8)}
+            loading={loading}
           />
         ))}
       </div>

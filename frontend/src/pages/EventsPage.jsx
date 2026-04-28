@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
+import { SkeletonEventGrid } from '../components/Skeleton/Skeleton';
 import './EventsPage.css';
 
 /* ── Constants ── */
@@ -404,19 +405,24 @@ export default function EventsPage() {
 
       {/* Events Grid */}
       {loading ? (
-        <div className="loading-screen"><div className="spinner" /></div>
+        <div className="container"><SkeletonEventGrid count={6} /></div>
       ) : events.length === 0 ? (
         <div className="empty-state">
           <p>Không tìm thấy sự kiện nào phù hợp với bộ lọc của bạn.</p>
         </div>
       ) : (
         <div className="events-grid">
-          {events.map(event => {
+          {events.map((event, idx) => {
             const minPrice = event.sections?.length > 0
               ? Math.min(...event.sections.map(s => parseFloat(s.price)))
               : null;
+            const delayClass = idx < 6 ? `anim-delay-${Math.min(idx + 1, 5)}` : '';
             return (
-              <Link to={`/events/${event.id}`} key={event.id} className="event-card card">
+              <Link
+                to={`/events/${event.id}`}
+                key={event.id}
+                className={`event-card card anim-entrance ${delayClass}`}
+              >
                 <div className="event-card-image" style={{ background: `linear-gradient(135deg, ${event.sections?.[0]?.colorCode || '#e53e3e'}33, #f8f8f6)` }}>
                   <span className="event-category">{event.category}</span>
                 </div>
