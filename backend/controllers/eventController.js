@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Event, SeatSection, Seat } = require('../models');
+const { Event, SeatSection, Seat, Order } = require('../models');
 
 const createEvent = async (req, res) => {
   try {
@@ -7,6 +7,10 @@ const createEvent = async (req, res) => {
 
     if (!eventDate) {
       return res.status(400).json({ error: true, message: 'Vui lòng nhập ngày sự kiện.' });
+    }
+    // [FIX #19] Reject events scheduled in the past
+    if (new Date(eventDate) < new Date()) {
+      return res.status(400).json({ error: true, message: 'Ngày diễn ra sự kiện phải trong tương lai.' });
     }
     if (saleStartAt && new Date(saleStartAt) >= new Date(eventDate)) {
       return res.status(400).json({ error: true, message: 'Ngày mở bán vé phải trước ngày diễn ra sự kiện.' });
@@ -184,6 +188,19 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ error: true, message: 'Sự kiện không tồn tại' });
     }
 
+    // [FIX #18] Validate date logic on update
+    const newEventDate = req.body.eventDate ? new Date(req.body.eventDate) : new Date(event.eventDate);
+    const newSaleStart = req.body.saleStartAt
+      ? new Date(req.body.saleStartAt)
+      : event.saleStartAt ? new Date(event.saleStartAt) : null;
+
+    if (newSaleStart && newSaleStart >= newEventDate) {
+      return res.status(400).json({
+        error: true,
+        message: 'Ngày mở bán vé phải trước ngày diễn ra sự kiện.',
+      });
+    }
+
     await event.update(req.body);
     res.json({ message: 'Cập nhật thành công', event });
   } catch (error) {
@@ -198,6 +215,23 @@ const deleteEvent = async (req, res) => {
     if (!event) {
       return res.status(404).json({ error: true, message: 'Sự kiện không tồn tại' });
     }
+
+    // [FIX #20] Block delete if any paid orders exist — would cause data loss / no refund
+    const paidCount = await Order.count({
+      where: { eventId: req.params.id, status: 'paid' },
+    });
+    if (paidCount > 0) {
+      return res.status(409).json({
+        error: true,
+        message: `Không thể xóa: sự kiện có ${paidCount} đơn hàng đã thanh toán. Hãy hủy sự kiện thay vì xóa.`,
+      });
+    }
+
+    // Auto-cancel pending orders before deleting
+    await Order.update(
+      { status: 'cancelled' },
+      { where: { eventId: req.params.id, status: 'pending' } }
+    );
 
     await event.destroy();
     res.json({ message: 'Xóa sự kiện thành công' });
