@@ -12,6 +12,11 @@ const createEvent = async (req, res) => {
     if (new Date(eventDate) < new Date()) {
       return res.status(400).json({ error: true, message: 'Ngày diễn ra sự kiện phải trong tương lai.' });
     }
+    
+    if (!saleStartAt) {
+      return res.status(400).json({ error: true, message: 'Bạn chưa chọn ngày mở bán vé.' });
+    }
+
     if (saleStartAt && new Date(saleStartAt) >= new Date(eventDate)) {
       return res.status(400).json({ error: true, message: 'Ngày mở bán vé phải trước ngày diễn ra sự kiện.' });
     }
@@ -189,6 +194,10 @@ const updateEvent = async (req, res) => {
     }
 
     // [FIX #18] Validate date logic on update
+    if (req.body.saleStartAt === '') {
+      return res.status(400).json({ error: true, message: 'Bạn chưa chọn ngày mở bán vé.' });
+    }
+
     const newEventDate = req.body.eventDate ? new Date(req.body.eventDate) : new Date(event.eventDate);
     const newSaleStart = req.body.saleStartAt
       ? new Date(req.body.saleStartAt)
