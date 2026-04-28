@@ -25,7 +25,7 @@ const Order = sequelize.define('Order', {
     field: 'total_amount',
   },
   status: {
-    type: DataTypes.ENUM('pending', 'paid', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'paid', 'cancelled', 'expired'),
     defaultValue: 'pending',
     allowNull: false,
   },

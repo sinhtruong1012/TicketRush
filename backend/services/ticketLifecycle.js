@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const seatLockService = require('./seatLockService');
 const { admitNextBatch } = require('./virtualQueue');
-const { QueueEntry } = require('../models');
+const { QueueEntry, Order } = require('../models');
 const { Op } = require('sequelize');
 
 let ioInstance = null;
@@ -47,7 +47,27 @@ const start = () => {
     } catch (error) {
       console.error('Queue admit batch error:', error);
     } finally {
-      isAdmittingBatch = false; // [FIX 8] Always release lock
+      isAdmittingBatch = false;
+    }
+  });
+
+  // [FIX 15] Every 60s: mark expired pending orders as 'expired'
+  cron.schedule('*/60 * * * * *', async () => {
+    try {
+      const [updated] = await Order.update(
+        { status: 'expired' },
+        {
+          where: {
+            status: 'pending',
+            expiresAt: { [Op.lt]: new Date() },
+          },
+        }
+      );
+      if (updated > 0) {
+        console.log(`⏳ Marked ${updated} pending orders as expired`);
+      }
+    } catch (error) {
+      console.error('Order expiry cleanup error:', error);
     }
   });
 };
