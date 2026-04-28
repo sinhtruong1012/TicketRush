@@ -24,6 +24,24 @@ const createOrder = async (req, res) => {
       return res.status(400).json({ error: true, message: 'Sự kiện đã diễn ra' });
     }
 
+    // [FIX 25] Block multi-tab: reject if user already has an active pending order for this event
+    const existingOrder = await Order.findOne({
+      where: {
+        userId,
+        eventId: parseInt(eventId),
+        status: 'pending',
+        expiresAt: { [Op.gt]: new Date() }, // not yet expired
+      },
+    });
+    if (existingOrder) {
+      return res.status(409).json({
+        error: true,
+        message: 'Bạn đã có đơn hàng đang chờ thanh toán cho sự kiện này.',
+        orderId: existingOrder.id,
+      });
+    }
+
+
     // Verify all seats are locked by this user
     const seats = await Seat.findAll({
       where: { id: seatIds, lockedBy: userId, status: 'locked' },

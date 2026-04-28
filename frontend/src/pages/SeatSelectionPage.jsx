@@ -128,6 +128,11 @@ export default function SeatSelectionPage() {
       });
       navigate(`/checkout/${data.order.id}`);
     } catch (err) {
+      // [FIX 25] Multi-tab: backend returns 409 + orderId when a pending order already exists
+      if (err.status === 409 && err.orderId) {
+        navigate(`/checkout/${err.orderId}`);
+        return;
+      }
       setError(err.message);
     }
   };
