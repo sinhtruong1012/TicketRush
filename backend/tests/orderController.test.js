@@ -18,13 +18,13 @@ jest.mock('../config/database', () => ({
 }));
 jest.mock('../models', () => ({
   Order: { findOne: jest.fn(), create: jest.fn(), update: jest.fn() },
-  OrderItem: { bulkCreate: jest.fn() },
+  OrderItem: { bulkCreate: jest.fn(), update: jest.fn(), findByPk: jest.fn() },
   Seat: { findAll: jest.fn(), count: jest.fn(), update: jest.fn() },
   SeatSection: {},
   Event: { findByPk: jest.fn() },
 }));
 
-const { createOrder, confirmOrder, cancelOrder } = require('../controllers/orderController');
+const { createOrder, confirmOrder, cancelOrder, checkInTicket } = require('../controllers/orderController');
 const { Order, OrderItem, Seat, Event } = require('../models');
 const QRCode = require('qrcode');
 const sequelize = require('../config/database');
@@ -509,5 +509,60 @@ describe('#16 — Order model status ENUM includes expired', () => {
     await confirmOrder(req, res);
 
     expect(order.update).toHaveBeenCalledWith({ status: 'expired' }, expect.objectContaining({ transaction: expect.anything() }));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// #21 — checkInTicket (double-scan prevention)
+// ═══════════════════════════════════════════════════════════════════════════════
+describe('#21 — checkInTicket (QR double-scan prevention)', () => {
+  it('marks checkedInAt on first scan and returns 200', async () => {
+    OrderItem.update.mockResolvedValue([1]); // 1 row updated = first scan
+
+    const req = makeReq({ params: { itemId: '55' } });
+    const res = mockRes();
+    await checkInTicket(req, res);
+
+    expect(OrderItem.update).toHaveBeenCalledWith(
+      { checkedInAt: expect.any(Date) },
+      expect.objectContaining({ where: { id: '55', checkedInAt: null } })
+    );
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('thành công') })
+    );
+  });
+
+  it('returns 409 when QR already scanned (double-scan attempt)', async () => {
+    OrderItem.update.mockResolvedValue([0]); // 0 rows = already checked in
+    OrderItem.findByPk.mockResolvedValue({
+      id: 55,
+      checkedInAt: new Date('2026-01-01T10:00:00Z'),
+    });
+
+    const req = makeReq({ params: { itemId: '55' } });
+    const res = mockRes();
+    await checkInTicket(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining('đã được sử dụng'),
+        checkedInAt: expect.any(Date),
+      })
+    );
+  });
+
+  it('returns 404 when itemId does not exist', async () => {
+    OrderItem.update.mockResolvedValue([0]); // 0 rows
+    OrderItem.findByPk.mockResolvedValue(null); // item not found
+
+    const req = makeReq({ params: { itemId: '9999' } });
+    const res = mockRes();
+    await checkInTicket(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('không tồn tại') })
+    );
   });
 });

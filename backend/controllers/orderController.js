@@ -302,4 +302,39 @@ const getOrderById = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, confirmOrder, cancelOrder, getMyTickets, getOrderById };
+/**
+ * [FIX #21] POST /orders/items/:itemId/checkin  (admin only)
+ * Atomically marks a ticket as checked-in on first scan.
+ * Rejects if already checked-in — prevents the same QR entering twice.
+ */
+const checkInTicket = async (req, res) => {
+  const { itemId } = req.params;
+
+  try {
+    // Atomic update: only succeeds if checked_in_at IS NULL (not yet scanned)
+    const [updatedCount] = await OrderItem.update(
+      { checkedInAt: new Date() },
+      { where: { id: itemId, checkedInAt: null } }
+    );
+
+    if (updatedCount === 0) {
+      // Either itemId doesn't exist OR already checked in
+      const item = await OrderItem.findByPk(itemId);
+      if (!item) {
+        return res.status(404).json({ error: true, message: 'Vé không tồn tại' });
+      }
+      return res.status(409).json({
+        error: true,
+        message: 'Vé đã được sử dụng',
+        checkedInAt: item.checkedInAt,
+      });
+    }
+
+    return res.json({ message: 'Check-in thành công', checkedInAt: new Date() });
+  } catch (error) {
+    console.error('CheckInTicket error:', error);
+    res.status(500).json({ error: true, message: 'Lỗi server' });
+  }
+};
+
+module.exports = { createOrder, confirmOrder, cancelOrder, getMyTickets, getOrderById, checkInTicket };

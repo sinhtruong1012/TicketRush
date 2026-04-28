@@ -27,4 +27,15 @@ const customerOnly = (req, res, next) => {
   next();
 };
 
-module.exports = { auth, customerOnly };
+// Middleware: chỉ cho phép admin thực hiện (e.g. check-in QR scan)
+const adminOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({
+      error: true,
+      message: 'Chỉ admin mới có quyền thực hiện thao tác này.',
+    });
+  }
+  next();
+};
+
+module.exports = { auth, customerOnly, adminOnly };

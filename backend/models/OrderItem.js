@@ -29,6 +29,12 @@ const OrderItem = sequelize.define('OrderItem', {
     allowNull: true,
     field: 'qr_code_data',
   },
+  checkedInAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'checked_in_at',
+    comment: 'Timestamp khi QR được scan lần đầu. NULL = chưa check-in. Dùng để chặn double-scan.',
+  },
 }, {
   tableName: 'order_items',
   underscored: true,
