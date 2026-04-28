@@ -15,7 +15,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.password.length < 6) { setError('Mật khẩu tối thiểu 6 ký tự'); return; }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(form.password)) {
+      setError('Mật khẩu tối thiểu 8 ký tự, bao gồm chữ in hoa, chữ thường, số và ký tự đặc biệt.');
+      return;
+    }
     if (!form.gender) { setError('Vui lòng chọn giới tính của bạn'); return; }
     if (!form.birthDate) { setError('Vui lòng chọn ngày sinh của bạn'); return; }
     setLoading(true);
@@ -48,7 +52,10 @@ export default function RegisterPage() {
           </div>
           <div className="form-group">
             <label className="form-label">Mật khẩu *</label>
-            <input type="password" className="form-input" value={form.password} onChange={update('password')} placeholder="Tối thiểu 6 ký tự" required />
+            <input type="password" className="form-input" value={form.password} onChange={update('password')} placeholder="••••••••" required />
+            <p className="form-hint" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: '1.4' }}>
+              Tối thiểu 8 ký tự, bao gồm chữ in hoa, chữ thường, số và ký tự đặc biệt.
+            </p>
           </div>
           <div className="form-row">
             <div className="form-group">

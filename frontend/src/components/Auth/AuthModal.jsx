@@ -74,11 +74,11 @@ export default function AuthModal() {
     <div className="auth-modal-overlay" onClick={handleOverlayClick}>
       <div className="auth-modal-content card">
         <button className="auth-modal-close" onClick={closeAuthModal}>×</button>
-        
+
         {authModalMode === 'login' ? (
           <div className="auth-modal-body">
             <h2 className="auth-modal-title">Đăng nhập</h2>
-            <p className="auth-modal-subtitle">Chào mừng trở lại TicketRush ⚡</p>
+            <p className="auth-modal-subtitle">Chào mừng trở lại TicketRush</p>
 
             {error && <div className="auth-error">{error}</div>}
 
@@ -118,7 +118,10 @@ export default function AuthModal() {
               </div>
               <div className="form-group">
                 <label className="form-label">Mật khẩu *</label>
-                <input type="password" className="form-input" value={regForm.password} onChange={updateReg('password')} placeholder="≥ 8 ký tự, chữ hoa, số, ký tự đặc biệt" required />
+                <input type="password" className="form-input" value={regForm.password} onChange={updateReg('password')} placeholder="••••••••" required />
+                <p className="form-hint" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem', lineHeight: '1.4' }}>
+                  Tối thiểu 8 ký tự, bao gồm chữ in hoa, chữ thường, số và ký tự đặc biệt.
+                </p>
               </div>
               <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">

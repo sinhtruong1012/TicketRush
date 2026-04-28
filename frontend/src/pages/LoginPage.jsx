@@ -29,7 +29,7 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card card">
         <h1 className="auth-title">Đăng nhập</h1>
-        <p className="auth-subtitle">Chào mừng trở lại TicketRush ⚡</p>
+        <p className="auth-subtitle">Chào mừng trở lại TicketRush</p>
 
         {error && <div className="auth-error">{error}</div>}
 
