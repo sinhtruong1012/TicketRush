@@ -144,7 +144,7 @@ export default function CreateEventPage() {
   return (
     <div className="admin-page container">
       <div className="page-header">
-        <h1 className="page-title">➕ Tạo sự kiện mới</h1>
+        <h1 className="page-title">+ Tạo sự kiện mới</h1>
       </div>
 
       {error && <div className="toast toast-error">{error}</div>}
@@ -197,7 +197,7 @@ export default function CreateEventPage() {
               {sections.map(s => (
                 <div key={s.id} className="section-item"><span style={{ color: s.colorCode }}>● {s.name}</span> — {s.rowsCount}x{s.seatsPerRow} ghế — {s.seatsCreated} ghế tạo</div>
               ))}
-              <button className="btn btn-gold btn-lg mt-4" onClick={handlePublish}>🚀 Xuất bản sự kiện</button>
+              <button className="btn btn-gold btn-lg mt-4" onClick={handlePublish}>Xuất bản sự kiện</button>
             </div>
           )}
         </div>
