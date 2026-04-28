@@ -141,14 +141,15 @@ describe('updateEvent', () => {
     });
 
     it('returns 400 when new eventDate < existing saleStartAt', async () => {
+      const fixedTomorrow = new Date(Date.now() + 86400000).toISOString();
       const event = mockEvent({
         eventDate: nextWeek(),
-        saleStartAt: tomorrow(),
+        saleStartAt: fixedTomorrow,
       });
       Event.findByPk.mockResolvedValue(event);
 
-      // Move eventDate to tomorrow — now saleStartAt (also tomorrow) >= eventDate
-      const req = makeReq({ params: { id: '1' }, body: { eventDate: tomorrow() } });
+      // Move eventDate to same value as saleStartAt → saleStartAt >= eventDate → invalid
+      const req = makeReq({ params: { id: '1' }, body: { eventDate: fixedTomorrow } });
       const res = mockRes();
       await updateEvent(req, res);
 

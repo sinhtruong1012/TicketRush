@@ -115,9 +115,16 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    // Sync models (use { alter: true } in dev, remove in production)
-    await sequelize.sync({ alter: true });
-    console.log('✅ Models synced');
+    // [FIX 10.1] Never run alter:true in production — it can DROP columns and lose data.
+    // In dev: alter:true adds new columns safely.
+    // In prod: sync() with no options only creates missing tables, never alters.
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: true });
+      console.log('✅ Models synced (dev mode — alter:true)');
+    } else {
+      await sequelize.sync();
+      console.log('✅ Models synced (production mode — safe, no alter)');
+    }
 
     // Start cron jobs
     ticketLifecycle.start();

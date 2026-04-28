@@ -11,9 +11,10 @@ const sequelize = new Sequelize(
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 20,
-      min: 5,
-      acquire: 30000,
+      min: 2,
+      acquire: 10000,   // [FIX 10.4] fail fast: 10s instead of 30s — avoids hanging requests piling up
       idle: 10000,
+      evict: 5000,      // check + remove idle connections every 5s
     },
   }
 );

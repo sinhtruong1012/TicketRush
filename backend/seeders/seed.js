@@ -4,8 +4,16 @@ const sequelize = require('../config/database');
 const { User, Event, SeatSection, Seat } = require('../models');
 
 async function seed() {
+  // [FIX 10.2] Hard block: never run seed in production
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ FATAL: Refusing to run seed in production environment!');
+    console.error('   This would DROP all tables and destroy all data.');
+    console.error('   Set NODE_ENV=development to run seeder.');
+    process.exit(1);
+  }
+
   try {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: true }); // safe: only runs in non-production
     console.log('✅ Tables recreated');
 
     // Admin user
