@@ -428,8 +428,18 @@ export default function EventsPage() {
                 </div>
                 <div className="event-card-body">
                   <h3 className="event-card-title">{event.title}</h3>
-                  <p className="event-card-date">📅 {formatDate(event.eventDate)}</p>
-                  <p className="event-card-venue">📍 {event.venueName}</p>
+                  <p className="event-card-date" style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-calendar" style={{ flexShrink: 0, marginTop: '2px' }}>
+                      <path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>
+                    </svg>
+                    <span style={{ lineHeight: 1.5 }}>{formatDate(event.eventDate)}</span>
+                  </p>
+                  <p className="event-card-venue" style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map-pin" style={{ flexShrink: 0, marginTop: '2px' }}>
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span style={{ lineHeight: 1.5 }}>{event.venueName}</span>
+                  </p>
                   {minPrice !== null && (
                     <p className="event-card-price">
                       {minPrice === 0 ? 'Miễn phí' : `Từ ${formatCurrency(minPrice)}`}

@@ -120,14 +120,35 @@ export default function EditEventPage() {
   return (
     <div className="admin-page container">
       <div className="page-header">
-        <h1 className="page-title">✏️ Chỉnh sửa sự kiện</h1>
+        <h1 className="page-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil" style={{ marginRight: '10px', verticalAlign: 'text-bottom' }}>
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </svg>
+          Chỉnh sửa sự kiện
+        </h1>
         <button
           className="btn btn-gold btn-lg"
           onClick={handlePublish}
           disabled={publishing || sections.length === 0}
           title={sections.length === 0 ? 'Cần có ít nhất 1 khu vực ghế' : ''}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
         >
-          {publishing ? '⏳ Đang xuất bản...' : '🚀 Xuất bản sự kiện'}
+          {publishing ? (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-loader" style={{ animation: 'spin 2s linear infinite' }}>
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Đang xuất bản...
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
+              </svg>
+              Xuất bản sự kiện
+            </>
+          )}
         </button>
       </div>
 
@@ -136,7 +157,17 @@ export default function EditEventPage() {
 
       {/* ── Thông tin sự kiện ── */}
       <div className="admin-form card" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ marginBottom: '1.25rem', fontSize: '1rem' }}>📋 Thông tin sự kiện</h2>
+        <h2 style={{ marginBottom: '1.25rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clipboard-list">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <path d="M12 11h4"/>
+            <path d="M12 16h4"/>
+            <path d="M8 11h.01"/>
+            <path d="M8 16h.01"/>
+          </svg>
+          Thông tin sự kiện
+        </h2>
         <form onSubmit={handleSave}>
           <div className="form-group">
             <label className="form-label">Tên sự kiện *</label>
@@ -181,15 +212,39 @@ export default function EditEventPage() {
               <img src={form.posterUrl} alt="Preview poster" style={{ marginTop: '0.5rem', width: '120px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} onError={e => { e.target.style.display = 'none'; }} />
             )}
           </div>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? '⏳ Đang lưu...' : '💾 Lưu thay đổi'}
+          <button type="submit" className="btn btn-primary" disabled={saving} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            {saving ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-loader" style={{ animation: 'spin 2s linear infinite' }}>
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                Đang lưu...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-save">
+                  <path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+                  <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
+                  <path d="M7 3v4a1 1 0 0 0 1 1h7" />
+                </svg>
+                Lưu thay đổi
+              </>
+            )}
           </button>
         </form>
       </div>
 
       {/* ── Khu vực ghế hiện có ── */}
       <div className="admin-form card" style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ marginBottom: '1rem', fontSize: '1rem' }}>💺 Khu vực ghế ({sections.length})</h2>
+        <h2 style={{ marginBottom: '1rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-armchair">
+            <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/>
+            <path d="M3 11v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H7v-2a2 2 0 0 0-4 0Z"/>
+            <path d="M5 18v2"/>
+            <path d="M19 18v2"/>
+          </svg>
+          Khu vực ghế ({sections.length})
+        </h2>
         {sections.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Chưa có khu vực ghế nào.</p>
         ) : (
@@ -211,7 +266,14 @@ export default function EditEventPage() {
 
       {/* ── Thêm khu vực ghế ── */}
       <div className="admin-form card">
-        <h2 style={{ marginBottom: '1rem', fontSize: '1rem' }}>➕ Thêm khu vực ghế mới</h2>
+        <h2 style={{ marginBottom: '1rem', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-plus-circle">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8"/>
+            <path d="M12 8v8"/>
+          </svg>
+          Thêm khu vực ghế mới
+        </h2>
         <div className="form-row">
           <div className="form-group">
             <label className="form-label">Tên khu vực</label>

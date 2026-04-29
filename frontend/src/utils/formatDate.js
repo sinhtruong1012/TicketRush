@@ -1,6 +1,6 @@
 export const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN', {
+  const formattedString = date.toLocaleDateString('vi-VN', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -8,6 +8,8 @@ export const formatDate = (dateString) => {
     hour: '2-digit',
     minute: '2-digit',
   });
+  
+  return formattedString.charAt(0).toUpperCase() + formattedString.slice(1);
 };
 
 export const formatShortDate = (dateString) => {
