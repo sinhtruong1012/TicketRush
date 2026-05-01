@@ -4,6 +4,7 @@ import api from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
 import { SkeletonEventCard } from '../components/Skeleton/Skeleton';
+import FavoriteButton from '../components/Events/FavoriteButton';
 import './LandingPage.css';
 
 const HERO_IMAGES = [
@@ -106,6 +107,7 @@ const EventCard = ({ event, index, isPortrait, isTrending }) => {
     <Link to={`/events/${event.id}`} className={cardClasses} style={{ animationDelay: `${index * 0.1}s` }}>
       {isTrending && <div className="lp-c-number">{index + 1}</div>}
       <div className="lp-c-img-wrap">
+        <FavoriteButton eventId={event.id} />
         {event.posterUrl ? (
           <img src={event.posterUrl} alt={event.title} loading="lazy" />
         ) : (

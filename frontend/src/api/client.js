@@ -78,7 +78,16 @@ export const api = {
     if (endDate) params.append('endDate', endDate);
     return apiClient(`/admin/reports?${params.toString()}`);
   },
+
+  // Favorites
+  toggleFavorite: (eventId) => apiClient('/favorites/toggle', {
+    method: 'POST',
+    body: JSON.stringify({ eventId }),
+  }),
+  getMyFavorites: () => apiClient('/favorites/my'),
+  getFavoriteIds: () => apiClient('/favorites/ids'),
 };
+
 
 
 

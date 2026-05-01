@@ -4,6 +4,7 @@ import api from '../api/client';
 import { formatDate } from '../utils/formatDate';
 import { formatCurrency } from '../utils/formatCurrency';
 import { SkeletonEventGrid } from '../components/Skeleton/Skeleton';
+import FavoriteButton from '../components/Events/FavoriteButton';
 import './EventsPage.css';
 
 /* ── Constants ── */
@@ -424,6 +425,7 @@ export default function EventsPage() {
                 className={`event-card card anim-entrance ${delayClass}`}
               >
                 <div className="event-card-image" style={{ background: `linear-gradient(135deg, ${event.sections?.[0]?.colorCode || '#e53e3e'}33, #f8f8f6)` }}>
+                  <FavoriteButton eventId={event.id} />
                   <span className="event-category">{event.category}</span>
                 </div>
                 <div className="event-card-body">

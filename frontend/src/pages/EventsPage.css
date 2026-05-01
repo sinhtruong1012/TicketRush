@@ -370,10 +370,11 @@
 }
 
 .event-card-image {
+  position: relative;
   height: 160px;
   display: flex;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
   padding: 0.75rem;
 }
 .event-category {

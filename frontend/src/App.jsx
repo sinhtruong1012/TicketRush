@@ -23,6 +23,7 @@ import ReportsPage from './pages/admin/ReportsPage';
 import CreateEventPage from './pages/admin/CreateEventPage';
 import EditEventPage from './pages/admin/EditEventPage';
 import ManageEventsPage from './pages/admin/ManageEventsPage';
+import MyFavoritesPage from './pages/MyFavoritesPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import './index.css';
@@ -69,6 +70,9 @@ function App() {
                 } />
                 <Route path="/my-tickets" element={
                   <ProtectedRoute customerOnly><MyTicketsPage /></ProtectedRoute>
+                } />
+                <Route path="/favorites" element={
+                  <ProtectedRoute customerOnly><MyFavoritesPage /></ProtectedRoute>
                 } />
                 <Route path="/waiting-room/:eventId" element={
                   <ProtectedRoute customerOnly><WaitingRoomPage /></ProtectedRoute>
