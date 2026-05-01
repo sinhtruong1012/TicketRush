@@ -23,6 +23,8 @@ import ReportsPage from './pages/admin/ReportsPage';
 import CreateEventPage from './pages/admin/CreateEventPage';
 import EditEventPage from './pages/admin/EditEventPage';
 import ManageEventsPage from './pages/admin/ManageEventsPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 import './index.css';
 
 function AuthRouteFallback({ mode }) {
@@ -56,6 +58,8 @@ function App() {
                 <Route path="/login" element={<AuthRouteFallback mode="login" />} />
                 <Route path="/register" element={<AuthRouteFallback mode="register" />} />
                 <Route path="/events" element={<EventsPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/events/:id" element={<EventDetailPage />} />
                 <Route path="/events/:id/seats" element={
                   <ProtectedRoute customerOnly><SeatSelectionPage /></ProtectedRoute>
