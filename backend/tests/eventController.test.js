@@ -87,7 +87,7 @@ describe('createEvent', () => {
     it('allows creating event with a future eventDate', async () => {
       Event.create.mockResolvedValue({ id: 1, title: 'Future Event', eventDate: nextWeek() });
 
-      const req = makeReq({ body: { title: 'Future Event', eventDate: nextWeek() } });
+      const req = makeReq({ body: { title: 'Future Event', eventDate: nextWeek(), saleStartAt: tomorrow() } });
       const res = mockRes();
       await createEvent(req, res);
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../api/client';
 import './FavoriteButton.css';
@@ -61,10 +62,11 @@ export default function FavoriteButton({ eventId }) {
         <HeartIcon filled={isFavorite} />
       </button>
 
-      {toast && (
+      {toast && createPortal(
         <div key={toast.key} className="fav-toast" role="status" aria-live="polite">
           {toast.msg}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
