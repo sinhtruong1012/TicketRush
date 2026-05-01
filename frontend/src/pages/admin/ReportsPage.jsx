@@ -1,14 +1,47 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../../api/client';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import './AdminPages.css';
 
-const COLORS = ['#FF6B6B', '#00D4FF', '#e5e7eb'];
+// Chart color palette — vibrant, distinct, accessible
+const GENDER_COLORS = { female: '#FF6B6B', male: '#3B82F6', other: '#A78BFA' };
 const GENDER_LABELS = { male: 'Nam', female: 'Nữ', other: 'Khác' };
-const renderGenderLabel = ({ name, percent }) =>
-  `${GENDER_LABELS[name] ?? name} ${(percent * 100).toFixed(0)}%`;
+const AGE_GRADIENT_COLORS = ['#3B82F6', '#60A5FA', '#93C5FD'];
+
+// Custom Bar label — shows value on top of each bar
+const BarValueLabel = ({ x, y, width, value }) => {
+  if (!value) return null;
+  return (
+    <text x={x + width / 2} y={y - 6} fill="var(--text-secondary, #6b7280)" fontSize={12} fontWeight={600} textAnchor="middle">
+      {value}
+    </text>
+  );
+};
+
+// Custom Donut center label
+const DonutCenterLabel = ({ cx, cy, total }) => (
+  <>
+    <text x={cx} y={cy - 8} textAnchor="middle" fill="var(--text-primary, #1e293b)" fontSize={28} fontWeight={800}>{total}</text>
+    <text x={cx} y={cy + 16} textAnchor="middle" fill="var(--text-muted, #9ca3af)" fontSize={12}>người</text>
+  </>
+);
+
+// Custom Tooltip — dark glass style
+const ChartTooltip = ({ active, payload, label, formatter }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e5e7eb)', borderRadius: '10px', padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', fontSize: '13px' }}>
+      {label && <p style={{ color: 'var(--text-muted)', marginBottom: '4px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>}
+      {payload.map((entry, i) => (
+        <p key={i} style={{ color: entry.color || 'var(--text-primary)', fontWeight: 700, margin: 0 }}>
+          {formatter ? formatter(entry.value, entry.name) : `${entry.value}`}
+        </p>
+      ))}
+    </div>
+  );
+};
 
 export default function ReportsPage() {
   const [stats, setStats] = useState(null);
@@ -25,7 +58,7 @@ export default function ReportsPage() {
     setLoading(true);
     let start = '';
     let end = '';
-    
+
     if (dateRange === 'thisMonth') {
       const date = new Date();
       start = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
@@ -41,7 +74,7 @@ export default function ReportsPage() {
   };
 
   const getDateRangeLabel = () => {
-    switch(dateRange) {
+    switch (dateRange) {
       case 'thisMonth': return 'trong tháng này';
       case '30days': return 'trong 30 ngày qua';
       case 'all': return 'toàn thời gian';
@@ -58,22 +91,47 @@ export default function ReportsPage() {
           scale: 2,
           useCORS: true,
           logging: false,
-          backgroundColor: '#f8fafc' // Admin background color
+          backgroundColor: '#f8fafc',
         });
-        const imgData = canvas.toDataURL('image/png');
-        
+
         const pdf = new jsPDF('landscape', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        // Scale factor: canvas px → mm
+        const scale = pageWidth / canvas.width;
+        const canvasPageHeight = pageHeight / scale; // height in canvas px per page
+
+        let yOffset = 0;
+        let isFirstPage = true;
+
+        while (yOffset < canvas.height) {
+          const sliceHeight = Math.min(canvasPageHeight, canvas.height - yOffset);
+
+          // Draw only the current slice onto a temp canvas
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = sliceHeight;
+          pageCanvas.getContext('2d').drawImage(
+            canvas,
+            0, yOffset,             // source x, y
+            canvas.width, sliceHeight, // source w, h
+            0, 0,                   // dest x, y
+            canvas.width, sliceHeight, // dest w, h
+          );
+
+          if (!isFirstPage) pdf.addPage();
+          pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, sliceHeight * scale);
+
+          yOffset += sliceHeight;
+          isFirstPage = false;
+        }
+
         const today = new Date();
         const dateString = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-        
         pdf.save(`TicketRush_BaoCaoKhanGia_${dateString}.pdf`);
       } catch (error) {
-        console.error("Lỗi xuất PDF:", error);
+        console.error('Lỗi xuất PDF:', error);
       } finally {
         setIsExporting(false);
       }
@@ -101,12 +159,12 @@ export default function ReportsPage() {
 
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 className="page-title">Báo cáo Khán giả</h1>
+          <h1 className="page-title">Báo cáo khán giả</h1>
           <p className="text-gray-500 mt-1">Phân tích chuyên sâu về hành vi và nhân khẩu học của khách hàng.</p>
         </div>
         {!isExporting && (
           <div className="header-actions">
-            <select 
+            <select
               className="filter-select"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
@@ -149,65 +207,86 @@ export default function ReportsPage() {
           </div>
 
           <div className="charts-grid mt-4">
+            {/* Bar Chart — Age segments */}
             <div className="chart-card card span-2">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="20" x2="18" y2="10" />
-                  <line x1="12" y1="20" x2="12" y2="4" />
-                  <line x1="6" y1="20" x2="6" y2="14" />
+                  <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
                 </svg>
                 Phân khúc Độ tuổi
               </h3>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stats.demographics.ageStats}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                  <XAxis dataKey="age_group" stroke="#6b7280" fontSize={12} />
-                  <YAxis type="number" stroke="#6b7280" />
-                  <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }} />
-                  <Bar dataKey="count" fill="#00D4FF" radius={[4, 4, 0, 0]} barSize={40} />
+                <BarChart data={stats.demographics.ageStats} margin={{ top: 24, right: 16, left: -10, bottom: 0 }}>
+                  <defs>
+                    {stats.demographics.ageStats.map((_, i) => (
+                      <linearGradient key={i} id={`barGrad${i}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={AGE_GRADIENT_COLORS[i % AGE_GRADIENT_COLORS.length]} stopOpacity={1} />
+                        <stop offset="100%" stopColor={AGE_GRADIENT_COLORS[i % AGE_GRADIENT_COLORS.length]} stopOpacity={0.45} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color, #f3f4f6)" />
+                  <XAxis dataKey="age_group" stroke="var(--text-muted, #9ca3af)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--text-muted, #9ca3af)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip content={<ChartTooltip formatter={(v) => `${v} người`} />} />
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={52} isAnimationActive animationDuration={800}>
+                    <LabelList content={<BarValueLabel />} />
+                    {stats.demographics.ageStats.map((_, i) => (
+                      <Cell key={i} fill={`url(#barGrad${i})`} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
+            {/* Donut Chart — Gender */}
             <div className="chart-card card">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                 </svg>
                 Giới tính
               </h3>
               {stats.demographics.genderStats.length === 0 ? (
                 <div className="chart-empty">Chưa có dữ liệu</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={stats.demographics.genderStats}
-                      dataKey="count"
-                      nameKey="gender"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      label={renderGenderLabel}
-                      labelLine={true}
-                    >
-                      {stats.demographics.genderStats.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              ) : (() => {
+                const total = stats.demographics.genderStats.reduce((s, d) => s + Number(d.count), 0);
+                return (
+                  <>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={stats.demographics.genderStats}
+                          dataKey="count"
+                          nameKey="gender"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={72}
+                          outerRadius={100}
+                          paddingAngle={3}
+                          isAnimationActive
+                          animationDuration={900}
+                        >
+                          {stats.demographics.genderStats.map((entry, i) => (
+                            <Cell key={i} fill={GENDER_COLORS[entry.gender] ?? '#e5e7eb'} stroke="none" />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<ChartTooltip formatter={(v, name) => `${v} người · ${GENDER_LABELS[name] ?? name}`} />} />
+                        <DonutCenterLabel cx="50%" cy={125} total={total} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                      {stats.demographics.genderStats.map((entry, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: GENDER_COLORS[entry.gender] ?? '#e5e7eb', flexShrink: 0 }} />
+                          <span style={{ color: 'var(--text-secondary, #6b7280)' }}>{GENDER_LABELS[entry.gender] ?? entry.gender}</span>
+                          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{Math.round((entry.count / total) * 100)}%</span>
+                        </div>
                       ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#000' }}
-                      formatter={(value, name) => [value + ' người', GENDER_LABELS[name] ?? name]}
-                    />
-                    <Legend
-                      formatter={(name) => GENDER_LABELS[name] ?? name}
-                      wrapperStyle={{ fontSize: '13px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -220,7 +299,6 @@ export default function ReportsPage() {
                     <th>Khách hàng</th>
                     <th>Email</th>
                     <th>Ngày đăng ký</th>
-                    <th>Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -240,11 +318,10 @@ export default function ReportsPage() {
                       </td>
                       <td>{user.email}</td>
                       <td>{new Date(user.createdAt).toLocaleString()}</td>
-                      <td><span className="badge badge-success">• Đang hoạt động</span></td>
                     </tr>
                   ))}
                   {stats.newAudiences.length === 0 && (
-                    <tr><td colSpan="4" className="text-center py-4">Chưa có dữ liệu</td></tr>
+                    <tr><td colSpan="3" className="text-center py-4">Chưa có dữ liệu</td></tr>
                   )}
                 </tbody>
               </table>
