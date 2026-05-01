@@ -250,4 +250,35 @@ const deleteEvent = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, addSection, getAllEvents, getEventById, updateEvent, deleteEvent };
+const deleteSection = async (req, res) => {
+  try {
+    const { sectionId } = req.params;
+    const section = await SeatSection.findByPk(sectionId);
+    if (!section) {
+      return res.status(404).json({ error: true, message: 'Khu vực không tồn tại' });
+    }
+
+    // [SECURITY] Block deletion if any seats are already sold or locked
+    const busySeats = await Seat.count({
+      where: { sectionId, status: { [Op.ne]: 'available' } }
+    });
+    if (busySeats > 0) {
+      return res.status(400).json({ 
+        error: true, 
+        message: 'Không thể xóa khu vực này vì đã có ghế được đặt hoặc đang được chọn.' 
+      });
+    }
+
+    // Delete associated seats first
+    await Seat.destroy({ where: { sectionId } });
+    await section.destroy();
+
+    res.json({ message: 'Xóa khu vực thành công' });
+  } catch (error) {
+    console.error('DeleteSection error:', error);
+    res.status(500).json({ error: true, message: 'Lỗi server' });
+  }
+};
+
+module.exports = { createEvent, addSection, deleteSection, getAllEvents, getEventById, updateEvent, deleteEvent };
+

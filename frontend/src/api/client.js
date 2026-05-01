@@ -51,6 +51,8 @@ export const api = {
   updateEvent: (id, body) => apiClient(`/events/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   deleteEvent: (id) => apiClient(`/events/${id}`, { method: 'DELETE' }),
   addSection: (eventId, body) => apiClient(`/events/${eventId}/sections`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteSection: (sectionId) => apiClient(`/events/sections/${sectionId}`, { method: 'DELETE' }),
+
 
   // Seats
   getSeats: (eventId) => apiClient(`/seats/event/${eventId}`),

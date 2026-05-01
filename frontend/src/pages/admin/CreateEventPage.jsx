@@ -96,13 +96,26 @@ export default function CreateEventPage() {
 
     try {
       const data = await api.addSection(eventId, payload);
-      setSections(prev => [...prev, { ...newSection, id: Date.now(), seatsCreated: data.seatsCreated }]);
+      // Store the real ID from backend
+      setSections(prev => [...prev, { ...newSection, id: data.section.id, seatsCreated: data.seatsCreated }]);
       setNewSection({ name: '', rowsCount: 5, seatsPerRow: 10, price: '500.000', colorCode: '#00D4FF' });
       setHiddenSeats(new Set());
       setSuccess(data.message);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       showError(err.message || 'Lỗi thêm khu vực, vui lòng thử lại.');
+    }
+  };
+
+  const handleDeleteSection = async (sectionId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa khu vực này?')) return;
+    try {
+      await api.deleteSection(sectionId);
+      setSections(prev => prev.filter(s => s.id !== sectionId));
+      setSuccess('Xóa khu vực thành công');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      showError(err.message || 'Lỗi xóa khu vực');
     }
   };
 
@@ -292,7 +305,18 @@ export default function CreateEventPage() {
             <div className="sections-list mt-4">
               <h3>Đã thêm:</h3>
               {sections.map(s => (
-                <div key={s.id} className="section-item"><span style={{ color: s.colorCode }}>● {s.name}</span> — {s.rowsCount}x{s.seatsPerRow} ghế — {s.seatsCreated} ghế tạo</div>
+                <div key={s.id} className="section-item">
+                  <div className="section-item-info">
+                    <span className="section-item-dot" style={{ color: s.colorCode }}>●</span>
+                    <div className="section-item-text">
+                      <div className="section-item-name">{s.name}</div>
+                      <div className="section-item-meta">{s.rowsCount} hàng × {s.seatsPerRow} ghế — Giá: {s.price}đ</div>
+                    </div>
+                  </div>
+                  <button className="btn-delete-section" onClick={() => handleDeleteSection(s.id)} title="Xóa khu vực">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </button>
+                </div>
               ))}
               <button className="btn btn-gold btn-lg mt-4" onClick={handlePublish}>Xuất bản sự kiện</button>
             </div>
