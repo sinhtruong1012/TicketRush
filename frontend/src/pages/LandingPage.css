@@ -37,8 +37,6 @@
   margin-bottom: 1rem;
 }
 
-
-
 .lp-hero-title {
   font-family: var(--font-heading);
   font-size: clamp(2.4rem, 5vw, 3.8rem);
@@ -444,9 +442,6 @@
   line-height: 1;
 }
 
-
-
-
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .lp-hero-inner {
@@ -508,6 +503,4 @@
   .lp-carousel-controls {
     align-self: flex-end;
   }
-
-
 }

@@ -126,6 +126,8 @@ const EventCard = ({ event, index, isPortrait, isTrending }) => {
   );
 };
 
+
+
 const EventCarousel = ({ title, events, loading = false, isPortrait = false, isTrending = false, tabs = null, activeTab = null, onTabChange = null, hideMoreLink = false }) => {
   const scrollRef = useRef(null);
   const scroll = (offset) => scrollRef.current?.scrollBy({ left: offset, behavior: 'smooth' });
