@@ -79,6 +79,7 @@ const seatRoutes = require('./routes/seatRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const queueRoutes = require('./routes/queueRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
@@ -86,6 +87,7 @@ app.use('/api/seats', seatRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/queue', queueRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 
 

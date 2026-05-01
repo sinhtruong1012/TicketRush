@@ -6,6 +6,7 @@ const Seat = require('./Seat');
 const Order = require('./Order');
 const OrderItem = require('./OrderItem');
 const QueueEntry = require('./QueueEntry');
+const Favorite = require('./Favorite')(sequelize);
 
 // Associations
 Event.hasMany(SeatSection, { foreignKey: 'event_id', as: 'sections' });
@@ -34,6 +35,12 @@ QueueEntry.belongsTo(Event, { foreignKey: 'event_id', as: 'event' });
 User.hasMany(QueueEntry, { foreignKey: 'user_id', as: 'queueEntries' });
 QueueEntry.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+// Favorite Associations
+User.hasMany(Favorite, { foreignKey: 'userId', as: 'favorites' });
+Favorite.belongsTo(User, { foreignKey: 'userId' });
+Event.hasMany(Favorite, { foreignKey: 'eventId', as: 'favoritedBy' });
+Favorite.belongsTo(Event, { foreignKey: 'eventId', as: 'event' });
+
 module.exports = {
   sequelize,
   User,
@@ -43,6 +50,7 @@ module.exports = {
   Order,
   OrderItem,
   QueueEntry,
+  Favorite,
 };
 
 
