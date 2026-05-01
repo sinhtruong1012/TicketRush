@@ -425,6 +425,7 @@ export default function EventsPage() {
                 className={`event-card card anim-entrance ${delayClass}`}
               >
                 <div className="event-card-image" style={{ background: `linear-gradient(135deg, ${event.sections?.[0]?.colorCode || '#e53e3e'}33, #f8f8f6)` }}>
+                  {event.posterUrl && <img src={event.posterUrl} alt={event.title} className="event-card-img-element" loading="lazy" />}
                   <FavoriteButton eventId={event.id} />
                   <span className="event-category">{event.category}</span>
                 </div>
