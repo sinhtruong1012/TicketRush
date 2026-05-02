@@ -16,6 +16,7 @@ export default function EditEventPage() {
   const [newSection, setNewSection] = useState({
     name: '', rowsCount: 5, seatsPerRow: 10, price: 500000, colorCode: '#00D4FF',
   });
+  const [hiddenSeats, setHiddenSeats] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -80,10 +81,19 @@ export default function EditEventPage() {
   const handleAddSection = async () => {
     setError('');
     if (!newSection.name.trim()) { setError('Vui lòng nhập tên khu vực.'); return; }
+    
+    const payload = {
+      ...newSection,
+      hiddenSeats: Array.from(hiddenSeats).map(key => {
+        const [row, col] = key.split('-');
+        return { row: parseInt(row), col: parseInt(col) };
+      })
+    };
+
     try {
-      const data = await api.addSection(id, newSection);
+      const data = await api.addSection(id, payload);
       setSections(prev => [...prev, {
-        id: Date.now(),
+        id: data.section.id,
         name: newSection.name,
         rowsCount: Number(newSection.rowsCount),
         seatsPerRow: Number(newSection.seatsPerRow),
@@ -92,9 +102,21 @@ export default function EditEventPage() {
         seatsCreated: data.seatsCreated,
       }]);
       setNewSection({ name: '', rowsCount: 5, seatsPerRow: 10, price: 500000, colorCode: '#00D4FF' });
+      setHiddenSeats(new Set());
       showSuccess(data.message || 'Đã thêm khu vực ghế.');
     } catch (err) {
       setError(err.message || 'Lỗi thêm khu vực.');
+    }
+  };
+
+  const handleDeleteSection = async (sectionId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa khu vực này?')) return;
+    try {
+      await api.deleteSection(sectionId);
+      setSections(prev => prev.filter(s => s.id !== sectionId));
+      showSuccess('Xóa khu vực thành công');
+    } catch (err) {
+      setError(err.message || 'Lỗi xóa khu vực');
     }
   };
 
@@ -113,6 +135,64 @@ export default function EditEventPage() {
       setError(err.message || 'Lỗi xuất bản.');
       setPublishing(false);
     }
+  };
+
+  const toggleSeatVisibility = (r, c) => {
+    const key = `${r}-${c}`;
+    setHiddenSeats(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) newSet.delete(key);
+      else newSet.add(key);
+      return newSet;
+    });
+  };
+
+  const renderSeatPreview = () => {
+    const rows = parseInt(newSection.rowsCount) || 0;
+    const cols = parseInt(newSection.seatsPerRow) || 0;
+    if (rows <= 0 || cols <= 0) return null;
+
+    const grid = [];
+    for (let r = 0; r < rows; r++) {
+      const rowCells = [];
+      let seatNumber = 1;
+      for (let c = 0; c < cols; c++) {
+        const isHidden = hiddenSeats.has(`${r}-${c}`);
+        rowCells.push(
+          <div
+            key={`${r}-${c}`}
+            onClick={() => toggleSeatVisibility(r, c)}
+            style={{
+              width: '24px', height: '24px', margin: '2px',
+              backgroundColor: isHidden ? '#f3f4f6' : newSection.colorCode,
+              border: isHidden ? '1px dashed #d1d5db' : 'none',
+              borderRadius: '4px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '10px', color: isHidden ? 'transparent' : '#fff',
+              transition: 'all 0.2s'
+            }}
+            title={isHidden ? 'Lối đi' : `Ghế ${seatNumber}`}
+          >
+            {!isHidden ? seatNumber : ''}
+          </div>
+        );
+        if (!isHidden) seatNumber++;
+      }
+      grid.push(
+        <div key={r} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+          <span style={{ width: '24px', fontSize: '12px', fontWeight: 'bold', color: '#6b7280' }}>{String.fromCharCode(65 + r)}</span>
+          <div style={{ display: 'flex' }}>{rowCells}</div>
+        </div>
+      );
+    }
+    return (
+      <div className="form-group mt-4 mb-4">
+        <label className="form-label">Sơ đồ ghế (Click vào ghế để xóa tạo lối đi)</label>
+        <div style={{ overflowX: 'auto', padding: '15px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', display: 'inline-block', maxWidth: '100%' }}>
+          {grid}
+        </div>
+      </div>
+    );
   };
 
   if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
@@ -250,14 +330,19 @@ export default function EditEventPage() {
         ) : (
           <div className="edit-sections-list">
             {sections.map((s, i) => (
-              <div key={s.id ?? i} className="edit-section-item">
-                <span className="edit-section-dot" style={{ color: s.colorCode }}>●</span>
-                <span className="edit-section-name">{s.name}</span>
-                <span className="edit-section-meta">
-                  {s.rowsCount} hàng × {s.seatsPerRow} ghế
-                  {s.seatsCreated != null ? ` — ${s.seatsCreated} ghế tạo` : ''}
-                </span>
-                <span className="edit-section-price">{formatCurrency(s.price)}</span>
+              <div key={s.id ?? i} className="edit-section-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                  <span className="edit-section-dot" style={{ color: s.colorCode }}>●</span>
+                  <span className="edit-section-name">{s.name}</span>
+                  <span className="edit-section-meta">
+                    {s.rowsCount} hàng × {s.seatsPerRow} ghế
+                    {s.seatsCreated != null ? ` — ${s.seatsCreated} ghế tạo` : ''}
+                  </span>
+                  <span className="edit-section-price">{formatCurrency(s.price)}</span>
+                </div>
+                <button className="btn-delete-section" onClick={() => handleDeleteSection(s.id)} title="Xóa khu vực" style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', marginLeft: 'auto' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </button>
               </div>
             ))}
           </div>
@@ -298,6 +383,7 @@ export default function EditEventPage() {
             <input type="number" className="form-input" value={newSection.price} onChange={updateSection('price')} min={0} />
           </div>
         </div>
+        {renderSeatPreview()}
         <button className="btn btn-primary" onClick={handleAddSection}>
           + Thêm khu vực
         </button>
