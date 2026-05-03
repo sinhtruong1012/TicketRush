@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 // Strict limiter for login — brute-force target
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 10,                    // max 10 attempts per IP per window
+  max: 30,                    // max 30 attempts per IP per window (tăng lên để dễ test)
   standardHeaders: true,      // Return rate limit info in RateLimit-* headers
   legacyHeaders: false,
   message: {
@@ -21,7 +21,7 @@ const loginLimiter = rateLimit({
 // Looser limiter for register — prevent account spam
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,  // 1 hour
-  max: 5,                     // max 5 registrations per IP per hour
+  max: 20,                    // max 20 registrations per IP per hour (tăng lên để dễ test)
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -33,7 +33,7 @@ const registerLimiter = rateLimit({
 // General API limiter — global safety net
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 200,                   // 200 requests per IP per window
+  max: 1000,                  // Tăng từ 200 lên 1000 requests per IP per window để thoải mái test
   standardHeaders: true,
   legacyHeaders: false,
   message: {

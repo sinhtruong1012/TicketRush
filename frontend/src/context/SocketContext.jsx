@@ -1,18 +1,15 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useContext } from 'react';
 import { io } from 'socket.io-client';
+import { AuthContext } from './AuthContext';
 
 export const SocketContext = createContext(null);
 
-const STORAGE_KEY = 'ticketrush_token';
-
 export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
+  const { token } = useContext(AuthContext); // Re-run when token changes
 
   useEffect(() => {
-    // [FIX 6.1] Pass JWT token in socket handshake auth
     // Backend verifies this before accepting the connection
-    const token = sessionStorage.getItem(STORAGE_KEY);
-
     const newSocket = io(window.location.origin, {
       transports: ['websocket', 'polling'],
       auth: token ? { token: `Bearer ${token}` } : {},
@@ -23,8 +20,7 @@ export function SocketProvider({ children }) {
     });
 
     newSocket.on('connect_error', (err) => {
-      // TOKEN_REVOKED / TOKEN_INVALID → don't crash the app,
-      // just log — user will be redirected by AuthContext on next API call
+      // TOKEN_REVOKED / TOKEN_INVALID
       if (err.message === 'TOKEN_REVOKED' || err.message === 'TOKEN_INVALID') {
         console.warn('⚠️ Socket auth failed:', err.message);
       }
@@ -35,7 +31,7 @@ export function SocketProvider({ children }) {
     return () => {
       newSocket.close();
     };
-  }, []);
+  }, [token]); // Re-connect if token changes
 
   return (
     <SocketContext.Provider value={socket}>

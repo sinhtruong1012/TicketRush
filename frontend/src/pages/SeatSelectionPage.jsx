@@ -25,6 +25,13 @@ export default function SeatSelectionPage() {
   const fetchSeats = useCallback(async () => {
     try {
       const data = await api.getSeats(eventId);
+      
+      // [FIX] Handle queue redirect from backend
+      if (data.queued) {
+        navigate(`/waiting-room/${eventId}`, { replace: true });
+        return;
+      }
+
       setSections(data.sections);
       if (data.event) setEventInfo(data.event);
 

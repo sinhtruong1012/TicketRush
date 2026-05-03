@@ -11,10 +11,28 @@ const admitNextBatch = async (eventId, io) => {
     if (!event || event.status !== 'published') {
       return 0;
     }
+    const MAX_CONCURRENT = parseInt(process.env.MAX_CONCURRENT_USERS) || 50;
+
+    // Check how many people are currently admitted and active (within 10 mins)
+    const activeCount = await QueueEntry.count({
+      where: {
+        eventId,
+        status: 'admitted',
+        admittedAt: { [Op.gte]: new Date(Date.now() - 10 * 60 * 1000) },
+      },
+    });
+
+    const availableSlots = MAX_CONCURRENT - activeCount;
+    if (availableSlots <= 0) {
+      return 0; // Queue is full, nobody gets in this batch
+    }
+
+    const limitToAdmit = Math.min(BATCH_SIZE, availableSlots);
+
     const waiting = await QueueEntry.findAll({
       where: { eventId, status: 'waiting' },
       order: [['position', 'ASC']],
-      limit: BATCH_SIZE,
+      limit: limitToAdmit,
     });
 
     for (const entry of waiting) {
