@@ -111,7 +111,7 @@ const getMe = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const { fullName, phone, gender, birthDate } = req.body;
-    
+
     const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ error: true, message: 'User không tồn tại' });

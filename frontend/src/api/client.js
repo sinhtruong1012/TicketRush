@@ -1,12 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
-
+const API_BASE = '/api';
 const getToken = () => sessionStorage.getItem('ticketrush_token');
 
 const apiClient = async (endpoint, options = {}) => {
   const token = getToken();
-  
+
   const isFormData = options.body instanceof FormData;
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
