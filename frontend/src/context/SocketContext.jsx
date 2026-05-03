@@ -10,7 +10,8 @@ export function SocketProvider({ children }) {
 
   useEffect(() => {
     // Backend verifies this before accepting the connection
-    const newSocket = io(window.location.origin, {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+    const newSocket = io(socketUrl, {
       transports: ['websocket', 'polling'],
       auth: token ? { token: `Bearer ${token}` } : {},
     });
