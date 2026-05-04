@@ -2,19 +2,19 @@ require('dotenv').config();
 
 // [FIX 1.4] Fail-fast: crash immediately if critical env vars are missing.
 // jwt.sign/verify with secret=undefined accepts ANY token → catastrophic security hole.
-const REQUIRED_ENV = [
-  'JWT_SECRET',
-  'JWT_EXPIRES_IN',
-  'DB_NAME',
-  'DB_USER',
-  'DB_PASSWORD',
-  'DB_HOST',
-];
-const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+const REQUIRED_ENV = ['JWT_SECRET', 'JWT_EXPIRES_IN'];
+const DB_REQUIRED_ENV = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST'];
+
+const missingCoreEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+const isUsingDbUrl = !!process.env.DATABASE_URL;
+const missingDbEnv = isUsingDbUrl ? [] : DB_REQUIRED_ENV.filter(key => !process.env[key]);
+
+const missingEnv = [...missingCoreEnv, ...missingDbEnv];
+
 if (missingEnv.length > 0) {
   console.error('❌ FATAL: Missing required environment variables:');
   missingEnv.forEach(key => console.error(`   - ${key}`));
-  console.error('👉 Copy .env.example → .env and fill in all values.');
+  if (!isUsingDbUrl) console.error('👉 Tip: You can provide DATABASE_URL instead of individual DB_* variables.');
   process.exit(1);
 }
 
