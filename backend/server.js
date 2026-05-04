@@ -36,6 +36,9 @@ const sequelize = require('./config/database');
 const app = express();
 const server = http.createServer(app);
 
+// [FIX] Required for express-rate-limit to work correctly on Render/Vercel
+app.set('trust proxy', 1);
+
 // Socket.IO
 const io = new Server(server, {
   cors: {
